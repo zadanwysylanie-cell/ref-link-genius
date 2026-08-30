@@ -169,27 +169,23 @@ export const adminSellerUsernames = createServerFn({ method: "POST" })
     };
   });
 
-/** Public, rate-shaped engagement vote — increments a counter server-side. */
-export const voteProduct = createServerFn({ method: "POST" })
-  .inputValidator((data: { productId: string; kind: "likes" | "dislikes" }) => {
+/** Publiczny licznik wyświetleń produktu — zwiększany po otwarciu karty. */
+export const registerProductView = createServerFn({ method: "POST" })
+  .inputValidator((data: { productId: string }) => {
     const productId = String(data?.productId ?? "");
     if (!/^[0-9a-fA-F-]{36}$/.test(productId)) throw new Error("Invalid product");
-    const kind = data?.kind === "dislikes" ? "dislikes" : "likes";
-    return { productId, kind } as const;
+    return { productId };
   })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row } = await supabaseAdmin
       .from("products")
-      .select("likes, dislikes")
+      .select("views")
       .eq("id", data.productId)
       .maybeSingle();
     if (!row) return { ok: false as const };
-    const next = (data.kind === "likes" ? row.likes : row.dislikes) + 1;
-    await supabaseAdmin
-      .from("products")
-      .update(data.kind === "likes" ? { likes: next } : { dislikes: next })
-      .eq("id", data.productId);
+    const next = (row.views ?? 0) + 1;
+    await supabaseAdmin.from("products").update({ views: next }).eq("id", data.productId);
     return { ok: true as const, value: next };
   });
 

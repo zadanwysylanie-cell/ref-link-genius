@@ -282,6 +282,7 @@ function SellerProducts({ seller }: { seller: Seller }) {
     id: "preview",
     for_women: false,
     verified: false,
+    show_on_home: false,
     title: form.title || "Nazwa produktu",
     category: form.category,
     price: Number(form.price) || 0,

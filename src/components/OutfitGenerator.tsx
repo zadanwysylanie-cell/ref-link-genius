@@ -127,13 +127,13 @@ export function OutfitGenerator({
             className={`group relative flex items-center gap-3 rounded-full border px-4 py-2.5 text-xs font-bold uppercase tracking-wide transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
               includeWomen
                 ? "border-primary/60 bg-primary/15 text-primary shadow-[0_0_18px_rgba(0,242,254,0.18)]"
-                : "border-border bg-secondary/40 text-muted-foreground hover:border-primary/50 hover:text-primary"
+                : "border-destructive/60 bg-destructive/15 text-destructive hover:border-destructive hover:bg-destructive/25"
             }`}
             aria-pressed={includeWomen}
           >
             <span
               className={`relative flex h-6 w-11 items-center rounded-full border transition-colors duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-                includeWomen ? "border-primary bg-primary" : "border-border bg-muted"
+                includeWomen ? "border-primary bg-primary" : "border-destructive bg-destructive"
               }`}
             >
               <span

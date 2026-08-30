@@ -124,26 +124,40 @@ export function OutfitGenerator({
               setIncludeWomen((v) => !v);
               setOutfit({});
             }}
-            className={`group relative flex items-center gap-3 rounded-full border px-4 py-2.5 text-xs font-bold uppercase tracking-wide transition-all ${
+            className={`group relative flex items-center gap-3 rounded-full border px-4 py-2.5 text-xs font-bold uppercase tracking-wide transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
               includeWomen
-                ? "border-primary/60 bg-primary/15 text-primary"
+                ? "border-primary/60 bg-primary/15 text-primary shadow-[0_0_18px_rgba(0,242,254,0.18)]"
                 : "border-border bg-secondary/40 text-muted-foreground hover:border-primary/50 hover:text-primary"
             }`}
             aria-pressed={includeWomen}
           >
             <span
-              className={`flex h-6 w-11 items-center rounded-full border transition-colors ${
+              className={`relative flex h-6 w-11 items-center rounded-full border transition-colors duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
                 includeWomen ? "border-primary bg-primary" : "border-border bg-muted"
               }`}
             >
               <span
-                className={`mx-0.5 h-5 w-5 rounded-full bg-surface shadow-sm transition-transform ${
+                className={`mx-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-surface shadow-sm transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-90 ${
                   includeWomen ? "translate-x-5" : "translate-x-0"
                 }`}
-              />
+              >
+                <span
+                  className={`text-[10px] transition-all duration-200 ${
+                    includeWomen ? "scale-100 opacity-100" : "scale-50 opacity-0"
+                  }`}
+                >
+                  👩
+                </span>
+              </span>
             </span>
             <span className="flex items-center gap-1.5">
-              <span>👩</span>
+              <span
+                className={`transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+                  includeWomen ? "scale-110" : "scale-100"
+                }`}
+              >
+                👩
+              </span>
               <span>{t("outfit.includeWomen")}</span>
             </span>
           </button>

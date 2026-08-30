@@ -127,6 +127,7 @@ export const DICT: Record<string, { pl: string; en: string }> = {
     en: "No shipping rates defined for this weight.",
   },
   "calc.cheapest": { pl: "Najtańsza opcja", en: "Cheapest option" },
+  "calc.signup": { pl: "Kliknij, aby przejść do rejestracji u agenta", en: "Click to open agent sign-up" },
   "calc.code": { pl: "kod", en: "code" },
   "calc.signup": { pl: "Zarejestruj się \u2192", en: "Sign up \u2192" },
 

@@ -24,6 +24,13 @@ export function HaulCalculator() {
   const avatarOf = (name: string) =>
     (agents ?? []).find((a) => a.name.toLowerCase() === name.toLowerCase())?.avatar_url ?? null;
 
+  /** Link rejestracyjny agenta — z linii wysyłkowej, a w razie braku z profilu agenta. */
+  const signupOf = (rate: ShippingRate) =>
+    rate.signup_url ||
+    (agents ?? []).find((a) => a.name.toLowerCase() === rate.agent_name.toLowerCase())
+      ?.referral_url ||
+    "";
+
   const results = useMemo(() => {
     const list: { rate: ShippingRate; cost: number; base: number }[] = [];
     for (const r of rates ?? []) {
@@ -144,10 +151,15 @@ export function HaulCalculator() {
           {results.map(({ rate, cost, base }) => {
             const best = cost === cheapest;
             const avatar = avatarOf(rate.agent_name);
+            const signup = signupOf(rate);
+            const Tile = signup ? "a" : "li";
             return (
-              <li
+              <Tile
                 key={rate.id}
-                className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-all ${best ? "border-primary bg-primary/10 glow-ring" : "border-border bg-secondary/50"}`}
+                {...(signup
+                  ? { href: signup, target: "_blank", rel: "noreferrer", title: t("calc.signup") }
+                  : {})}
+                className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-all ${signup ? "cursor-pointer hover:-translate-y-0.5 hover:border-primary" : ""} ${best ? "border-primary bg-primary/10 glow-ring" : "border-border bg-secondary/50"}`}
               >
                 {avatar ? (
                   <img
@@ -182,7 +194,7 @@ export function HaulCalculator() {
                     <p className="text-[11px] font-bold text-primary">{t("calc.code")} {rate.coupon_code}</p>
                   ) : null}
                 </div>
-              </li>
+              </Tile>
             );
           })}
         </ul>

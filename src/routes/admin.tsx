@@ -610,6 +610,7 @@ function ShippingTab() {
     price_table: {} as Record<string, number>,
     discount_percent: 0,
     coupon_code: "",
+    signup_url: "",
   };
   const [form, setForm] = useState<typeof empty & { id?: string }>(empty);
 
@@ -738,6 +739,15 @@ function ShippingTab() {
               onChange={(e) => setForm({ ...form, coupon_code: e.target.value })}
             />
           </label>
+          <label className="text-xs font-semibold text-muted-foreground sm:col-span-2">
+            Link rejestracyjny (ref) — kafelek agenta w kalkulatorze prowadzi tutaj
+            <input
+              className={`${input} mt-1`}
+              placeholder="https://..."
+              value={form.signup_url}
+              onChange={(e) => setForm({ ...form, signup_url: e.target.value })}
+            />
+          </label>
         </div>
         <div className="mt-5 rounded-xl border border-dashed border-border bg-secondary/40 p-3">
           <p className="mb-1 text-xs font-bold uppercase tracking-wide text-muted-foreground">
@@ -819,6 +829,7 @@ function ShippingTab() {
                     price_table: r.price_table ?? {},
                     discount_percent: r.discount_percent ?? 0,
                     coupon_code: r.coupon_code ?? "",
+                    signup_url: r.signup_url ?? "",
                   })
                 }
               >

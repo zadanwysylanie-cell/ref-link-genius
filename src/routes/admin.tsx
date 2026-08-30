@@ -610,6 +610,7 @@ function ShippingTab() {
     price_table: {} as Record<string, number>,
     discount_percent: 0,
     coupon_code: "",
+    signup_url: "",
   };
   const [form, setForm] = useState<typeof empty & { id?: string }>(empty);
 
@@ -738,6 +739,15 @@ function ShippingTab() {
               onChange={(e) => setForm({ ...form, coupon_code: e.target.value })}
             />
           </label>
+          <label className="text-xs font-semibold text-muted-foreground sm:col-span-2">
+            Link rejestracyjny (ref) — kafelek agenta w kalkulatorze prowadzi tutaj
+            <input
+              className={`${input} mt-1`}
+              placeholder="https://..."
+              value={form.signup_url}
+              onChange={(e) => setForm({ ...form, signup_url: e.target.value })}
+            />
+          </label>
         </div>
         <div className="mt-5 rounded-xl border border-dashed border-border bg-secondary/40 p-3">
           <p className="mb-1 text-xs font-bold uppercase tracking-wide text-muted-foreground">
@@ -819,6 +829,7 @@ function ShippingTab() {
                     price_table: r.price_table ?? {},
                     discount_percent: r.discount_percent ?? 0,
                     coupon_code: r.coupon_code ?? "",
+                    signup_url: r.signup_url ?? "",
                   })
                 }
               >
@@ -1052,8 +1063,7 @@ function ProductsTab() {
     promoted: false,
     for_women: false,
     verified: false,
-    likes: 0,
-    dislikes: 0,
+    show_on_home: false,
     views: 0,
     store_url: "",
     store_name: "",
@@ -1187,9 +1197,8 @@ function ProductsTab() {
       promoted: form.promoted,
       for_women: form.for_women,
       verified: form.verified,
+      show_on_home: form.show_on_home,
       price_cny: Math.round(cnyFromPln(Number(form.price) || 0) * 100) / 100,
-      likes: Number(form.likes) || 0,
-      dislikes: Number(form.dislikes) || 0,
       views: Number(form.views) || 0,
       store_url: form.store_url,
       store_name: form.store_name,
@@ -1204,6 +1213,7 @@ function ProductsTab() {
   const preview: Product = {
     id: "preview",
     verified: form.verified,
+    show_on_home: form.show_on_home,
     title: form.title || "Nazwa produktu",
     category: form.category,
     price: Number(form.price) || 0,
@@ -1212,8 +1222,6 @@ function ProductsTab() {
     quality: form.quality,
     sizes: parseList(form.sizes),
     images: parseList(form.images),
-    likes: Number(form.likes) || 0,
-    dislikes: Number(form.dislikes) || 0,
     views: Number(form.views) || 0,
     agent_links: form.agent_links,
     batch: form.batch,
@@ -1432,7 +1440,16 @@ function ProductsTab() {
               />
               👛 Girl Zone (dla kobiet)
             </label>
+            <label className="flex items-end gap-2 text-xs font-semibold text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={form.show_on_home}
+                onChange={(e) => setForm({ ...form, show_on_home: e.target.checked })}
+              />
+              🏠 Pokaż też na stronie głównej (produkt sprzedawcy)
+            </label>
           </div>
+
 
           <h3 className="mt-5 text-xs font-bold uppercase tracking-wide text-muted-foreground">
             Linki produktu u agentów
@@ -1570,8 +1587,7 @@ function ProductsTab() {
                     promoted: p.promoted,
                     for_women: p.for_women,
                     verified: p.verified,
-                    likes: p.likes,
-                    dislikes: p.dislikes,
+                    show_on_home: p.show_on_home,
                     views: p.views,
                     store_url: p.store_url ?? "",
                     store_name: p.store_name ?? "",
@@ -2094,9 +2110,41 @@ function LangTab() {
 }
 
 /** Masowy import produktów z CSV / TSV / Google Sheets. */
+/** Zamienia listę produktów na plik CSV do pobrania. */
+function productsToCsv(products: Product[]): string {
+  const cols = [
+    "id","title","category","price","price_cny","image_url","images","qc_url","store_url",
+    "store_name","quality","batch","sizes","tiktok_url","views","promoted","for_women",
+    "verified","show_on_home","seller_id","display_order",
+  ] as const;
+  const cell = (v: unknown) => {
+    const s = Array.isArray(v) ? v.join(", ") : v == null ? "" : String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const lines = [cols.join(",")];
+  for (const p of products) {
+    lines.push(cols.map((c) => cell((p as unknown as Record<string, unknown>)[c])).join(","));
+  }
+  return lines.join("\n");
+}
+
 function ImportTab() {
   const { data: agents } = useAgents();
+  const { data: sellers } = useSellers();
+  const { data: allProducts } = useProducts();
+  const [sellerId, setSellerId] = useState("");
+  const [showOnHome, setShowOnHome] = useState(false);
   const refresh = useRefresh();
+
+  const downloadCsv = () => {
+    const csv = productsToCsv(allProducts ?? []);
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `produkty-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
   const [text, setText] = useState("");
   const [sheetUrl, setSheetUrl] = useState("");
   const [busy, setBusy] = useState(false);
@@ -2132,7 +2180,13 @@ function ImportTab() {
             if (url) links[a.name] = url;
           }
         }
-        return { ...p, agent_links: links, display_order: i };
+        return {
+          ...p,
+          agent_links: links,
+          display_order: i,
+          seller_id: sellerId || null,
+          show_on_home: sellerId ? showOnHome : true,
+        };
       });
       for (let i = 0; i < rows.length; i += 200) {
         const { error } = await panelDb.from("products").insert(rows.slice(i, i + 200));
@@ -2156,6 +2210,36 @@ function ImportTab() {
         images, qc_url, store_url, store_name, quality, batch, sizes, tiktok_url</b>. Kilka zdjęć /
         rozmiarów oddziel przecinkiem. Działa też po polsku (nazwa, kategoria, cena, zdjecia...).
       </p>
+
+      <div className="mb-4 grid gap-3 rounded-xl border border-dashed border-primary/40 bg-secondary/40 p-3 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-end">
+        <label className="text-xs font-semibold text-muted-foreground">
+          Przypisz import do sprzedawcy
+          <select
+            className={`${input} mt-1`}
+            value={sellerId}
+            onChange={(e) => setSellerId(e.target.value)}
+          >
+            <option value="">Strona główna (bez sprzedawcy)</option>
+            {(sellers ?? []).map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+          <input
+            type="checkbox"
+            disabled={!sellerId}
+            checked={showOnHome}
+            onChange={(e) => setShowOnHome(e.target.checked)}
+          />
+          Pokaż też na stronie głównej
+        </label>
+        <button className={btnGhost} onClick={downloadCsv}>
+          ⬇ Pobierz CSV produktów ({(allProducts ?? []).length})
+        </button>
+      </div>
 
       <div className="flex flex-wrap gap-2">
         <input

@@ -26,9 +26,9 @@ export type Product = {
   image_url: string | null;
   qc_url: string | null;
   quality: string;
-  likes: number;
-  dislikes: number;
   views: number;
+  /** Produkt sprzedawcy widoczny także na stronie głównej. */
+  show_on_home: boolean;
   agent_links: Record<string, string>;
   sizes: string[];
   images: string[];
@@ -238,6 +238,7 @@ export const useProducts = () =>
           promoted: Boolean(p.promoted),
           for_women: Boolean((p as { for_women?: boolean }).for_women),
           verified: Boolean((p as { verified?: boolean }).verified),
+          show_on_home: Boolean((p as { show_on_home?: boolean }).show_on_home),
           store_url: p.store_url ?? "",
           store_name: p.store_name ?? "",
         };

@@ -56,7 +56,7 @@ function Index() {
   // Product Finder shows only global (admin) products — seller items live in their stores.
   // Kolejność jest losowa (stała w obrębie sesji), więc nowe produkty trafiają w losowe miejsce.
   const all = useMemo(
-    () => shuffleProducts((products ?? []).filter((p) => !p.seller_id)),
+    () => shuffleProducts((products ?? []).filter((p) => !p.seller_id || p.show_on_home)),
     [products],
   );
 

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { PriceTags, QualityBadges, VerifiedBadge } from "@/components/PriceTags";
 import type { Agent, Product } from "@/lib/store";
+import { registerProductView } from "@/lib/secure.functions";
+import { safeStorage } from "@/lib/store";
 
 /** Interactive shopping modal: pick colorway + size, then buy through an agent. */
 export function ProductModal({
@@ -17,6 +19,14 @@ export function ProductModal({
   );
   const [active, setActive] = useState(0);
   const [size, setSize] = useState(product.sizes?.[0] ?? "");
+
+  // Licznik wyświetleń: raz na produkt w ramach sesji przeglądarki.
+  useEffect(() => {
+    const key = `viewed_${product.id}`;
+    if (safeStorage.get(key)) return;
+    safeStorage.set(key, "1");
+    void registerProductView({ data: { productId: product.id } }).catch(() => {});
+  }, [product.id]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();

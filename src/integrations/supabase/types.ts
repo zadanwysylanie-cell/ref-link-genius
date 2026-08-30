@@ -98,19 +98,18 @@ export type Database = {
           batch: string
           category: string
           created_at: string
-          dislikes: number
           display_order: number
           for_women: boolean
           id: string
           image_url: string | null
           images: string[]
-          likes: number
           price: number
           price_cny: number
           promoted: boolean
           qc_url: string | null
           quality: string
           seller_id: string | null
+          show_on_home: boolean
           sizes: string[]
           store_name: string
           store_url: string
@@ -124,19 +123,18 @@ export type Database = {
           batch?: string
           category?: string
           created_at?: string
-          dislikes?: number
           display_order?: number
           for_women?: boolean
           id?: string
           image_url?: string | null
           images?: string[]
-          likes?: number
           price?: number
           price_cny?: number
           promoted?: boolean
           qc_url?: string | null
           quality?: string
           seller_id?: string | null
+          show_on_home?: boolean
           sizes?: string[]
           store_name?: string
           store_url?: string
@@ -150,19 +148,18 @@ export type Database = {
           batch?: string
           category?: string
           created_at?: string
-          dislikes?: number
           display_order?: number
           for_women?: boolean
           id?: string
           image_url?: string | null
           images?: string[]
-          likes?: number
           price?: number
           price_cny?: number
           promoted?: boolean
           qc_url?: string | null
           quality?: string
           seller_id?: string | null
+          show_on_home?: boolean
           sizes?: string[]
           store_name?: string
           store_url?: string

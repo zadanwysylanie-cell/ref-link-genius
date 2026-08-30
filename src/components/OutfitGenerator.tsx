@@ -19,9 +19,14 @@ const ALL_SLOTS: Slot[] = [
   { key: "acc", label: "Czapka / Akcesoria", match: ["czap", "akces", "head", "cap", "hat", "zegar", "accessor"] },
 ];
 
-function pickPool(products: Product[], slot: Slot) {
+const RAIN_MATCH = ["przeciwdeszcz", "rain"];
+
+function pickPool(products: Product[], slot: Slot, includeWomen: boolean) {
   return products.filter((p) => {
+    if (!includeWomen && p.for_women) return false;
     const c = (p.category || "").toLowerCase();
+    // Jacket slot: winter jackets only — exclude rain jackets.
+    if (slot.key === "jacket" && RAIN_MATCH.some((m) => c.includes(m))) return false;
     return slot.match.some((m) => c.includes(m));
   });
 }
@@ -44,9 +49,10 @@ export function OutfitGenerator({
 }) {
   const { t } = useLang();
   const [jacketOn, setJacketOn] = useState(false);
+  const [includeWomen, setIncludeWomen] = useState(false);
   const pools = useMemo(
-    () => ALL_SLOTS.map((slot) => ({ slot, items: pickPool(products, slot) })),
-    [products],
+    () => ALL_SLOTS.map((slot) => ({ slot, items: pickPool(products, slot, includeWomen) })),
+    [products, includeWomen],
   );
   const slots = useMemo(
     () => ALL_SLOTS.filter((s) => s.key !== "jacket" || jacketOn),
@@ -112,6 +118,18 @@ export function OutfitGenerator({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-border px-4 py-3 text-xs font-bold uppercase tracking-wide text-muted-foreground hover:border-primary hover:text-primary">
+            <input
+              type="checkbox"
+              checked={includeWomen}
+              onChange={(e) => {
+                setIncludeWomen(e.target.checked);
+                setOutfit({});
+              }}
+              className="h-4 w-4 accent-primary"
+            />
+            👩 {t("outfit.includeWomen")}
+          </label>
           {jacketOn ? (
             <button
               onClick={removeJacket}

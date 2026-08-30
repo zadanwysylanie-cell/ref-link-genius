@@ -19,9 +19,14 @@ const ALL_SLOTS: Slot[] = [
   { key: "acc", label: "Czapka / Akcesoria", match: ["czap", "akces", "head", "cap", "hat", "zegar", "accessor"] },
 ];
 
-function pickPool(products: Product[], slot: Slot) {
+const RAIN_MATCH = ["przeciwdeszcz", "rain"];
+
+function pickPool(products: Product[], slot: Slot, includeWomen: boolean) {
   return products.filter((p) => {
+    if (!includeWomen && p.for_women) return false;
     const c = (p.category || "").toLowerCase();
+    // Jacket slot: winter jackets only — exclude rain jackets.
+    if (slot.key === "jacket" && RAIN_MATCH.some((m) => c.includes(m))) return false;
     return slot.match.some((m) => c.includes(m));
   });
 }

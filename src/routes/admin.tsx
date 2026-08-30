@@ -1429,7 +1429,16 @@ function ProductsTab() {
               />
               👛 Girl Zone (dla kobiet)
             </label>
+            <label className="flex items-end gap-2 text-xs font-semibold text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={form.show_on_home}
+                onChange={(e) => setForm({ ...form, show_on_home: e.target.checked })}
+              />
+              🏠 Pokaż też na stronie głównej (produkt sprzedawcy)
+            </label>
           </div>
+
 
           <h3 className="mt-5 text-xs font-bold uppercase tracking-wide text-muted-foreground">
             Linki produktu u agentów

@@ -27,6 +27,7 @@ export const DICT: Record<string, { pl: string; en: string }> = {
   "outfit.jacket": { pl: "Kurtka", en: "Jacket" },
   "outfit.addJacket": { pl: "+ Dodaj kurtkę", en: "+ Add jacket" },
   "outfit.removeJacket": { pl: "Usuń kurtkę", en: "Remove jacket" },
+  "outfit.includeWomen": { pl: "Damskie produkty", en: "Women's items" },
   "outfit.kicker": { pl: "Losowanie outfitów", en: "Outfit roll" },
   "outfit.title1": { pl: "Wylosuj", en: "Roll a" },
   "outfit.title2": { pl: "kompletny zestaw", en: "complete fit" },

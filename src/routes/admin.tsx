@@ -2110,9 +2110,41 @@ function LangTab() {
 }
 
 /** Masowy import produktów z CSV / TSV / Google Sheets. */
+/** Zamienia listę produktów na plik CSV do pobrania. */
+function productsToCsv(products: Product[]): string {
+  const cols = [
+    "id","title","category","price","price_cny","image_url","images","qc_url","store_url",
+    "store_name","quality","batch","sizes","tiktok_url","views","promoted","for_women",
+    "verified","show_on_home","seller_id","display_order",
+  ] as const;
+  const cell = (v: unknown) => {
+    const s = Array.isArray(v) ? v.join(", ") : v == null ? "" : String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const lines = [cols.join(",")];
+  for (const p of products) {
+    lines.push(cols.map((c) => cell((p as unknown as Record<string, unknown>)[c])).join(","));
+  }
+  return lines.join("\n");
+}
+
 function ImportTab() {
   const { data: agents } = useAgents();
+  const { data: sellers } = useSellers();
+  const { data: allProducts } = useProducts();
+  const [sellerId, setSellerId] = useState("");
+  const [showOnHome, setShowOnHome] = useState(false);
   const refresh = useRefresh();
+
+  const downloadCsv = () => {
+    const csv = productsToCsv(allProducts ?? []);
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `produkty-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
   const [text, setText] = useState("");
   const [sheetUrl, setSheetUrl] = useState("");
   const [busy, setBusy] = useState(false);
@@ -2148,7 +2180,13 @@ function ImportTab() {
             if (url) links[a.name] = url;
           }
         }
-        return { ...p, agent_links: links, display_order: i };
+        return {
+          ...p,
+          agent_links: links,
+          display_order: i,
+          seller_id: sellerId || null,
+          show_on_home: sellerId ? showOnHome : true,
+        };
       });
       for (let i = 0; i < rows.length; i += 200) {
         const { error } = await panelDb.from("products").insert(rows.slice(i, i + 200));
@@ -2172,6 +2210,36 @@ function ImportTab() {
         images, qc_url, store_url, store_name, quality, batch, sizes, tiktok_url</b>. Kilka zdjęć /
         rozmiarów oddziel przecinkiem. Działa też po polsku (nazwa, kategoria, cena, zdjecia...).
       </p>
+
+      <div className="mb-4 grid gap-3 rounded-xl border border-dashed border-primary/40 bg-secondary/40 p-3 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-end">
+        <label className="text-xs font-semibold text-muted-foreground">
+          Przypisz import do sprzedawcy
+          <select
+            className={`${input} mt-1`}
+            value={sellerId}
+            onChange={(e) => setSellerId(e.target.value)}
+          >
+            <option value="">Strona główna (bez sprzedawcy)</option>
+            {(sellers ?? []).map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+          <input
+            type="checkbox"
+            disabled={!sellerId}
+            checked={showOnHome}
+            onChange={(e) => setShowOnHome(e.target.checked)}
+          />
+          Pokaż też na stronie głównej
+        </label>
+        <button className={btnGhost} onClick={downloadCsv}>
+          ⬇ Pobierz CSV produktów ({(allProducts ?? []).length})
+        </button>
+      </div>
 
       <div className="flex flex-wrap gap-2">
         <input

@@ -118,18 +118,35 @@ export function OutfitGenerator({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-border px-4 py-3 text-xs font-bold uppercase tracking-wide text-muted-foreground hover:border-primary hover:text-primary">
-            <input
-              type="checkbox"
-              checked={includeWomen}
-              onChange={(e) => {
-                setIncludeWomen(e.target.checked);
-                setOutfit({});
-              }}
-              className="h-4 w-4 accent-primary"
-            />
-            👩 {t("outfit.includeWomen")}
-          </label>
+          <button
+            type="button"
+            onClick={() => {
+              setIncludeWomen((v) => !v);
+              setOutfit({});
+            }}
+            className={`group relative flex items-center gap-3 rounded-full border px-4 py-2.5 text-xs font-bold uppercase tracking-wide transition-all ${
+              includeWomen
+                ? "border-primary/60 bg-primary/15 text-primary"
+                : "border-border bg-secondary/40 text-muted-foreground hover:border-primary/50 hover:text-primary"
+            }`}
+            aria-pressed={includeWomen}
+          >
+            <span
+              className={`flex h-6 w-11 items-center rounded-full border transition-colors ${
+                includeWomen ? "border-primary bg-primary" : "border-border bg-muted"
+              }`}
+            >
+              <span
+                className={`mx-0.5 h-5 w-5 rounded-full bg-surface shadow-sm transition-transform ${
+                  includeWomen ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span>👩</span>
+              <span>{t("outfit.includeWomen")}</span>
+            </span>
+          </button>
           {jacketOn ? (
             <button
               onClick={removeJacket}

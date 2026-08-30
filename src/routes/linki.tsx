@@ -33,7 +33,7 @@ function LinkiPage() {
   const filtered = useMemo(
     () =>
       (products ?? []).filter(
-        (p) => !p.seller_id && p.tiktok_url && (cat === "" || p.category === cat),
+        (p) => (!p.seller_id || p.show_on_home) && p.tiktok_url && (cat === "" || p.category === cat),
       ),
     [products, cat],
   );

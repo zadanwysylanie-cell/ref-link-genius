@@ -290,8 +290,6 @@ function SellerProducts({ seller }: { seller: Seller }) {
     quality: form.quality,
     sizes: parseList(form.sizes),
     images: galleryUrls,
-    likes: 0,
-    dislikes: 0,
     views: 0,
     agent_links: form.agent_links,
     batch: form.batch,

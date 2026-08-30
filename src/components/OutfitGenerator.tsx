@@ -118,6 +118,18 @@ export function OutfitGenerator({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-border px-4 py-3 text-xs font-bold uppercase tracking-wide text-muted-foreground hover:border-primary hover:text-primary">
+            <input
+              type="checkbox"
+              checked={includeWomen}
+              onChange={(e) => {
+                setIncludeWomen(e.target.checked);
+                setOutfit({});
+              }}
+              className="h-4 w-4 accent-primary"
+            />
+            👩 {t("outfit.includeWomen")}
+          </label>
           {jacketOn ? (
             <button
               onClick={removeJacket}

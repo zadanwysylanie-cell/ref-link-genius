@@ -1038,7 +1038,7 @@ function CategoriesTab() {
 /** Ile produktów pokazujemy naraz na liście w panelu. */
 const ADMIN_PAGE_SIZE = 50;
 
-/** Duży, czytelny przełącznik on/off dla flag produktu. */
+/** Okrągły przełącznik on/off dla flag produktu. */
 function ToggleChip({
   icon,
   label,
@@ -1057,23 +1057,30 @@ function ToggleChip({
       type="button"
       aria-pressed={checked}
       onClick={onToggle}
-      className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-all duration-300 active:scale-[0.98] ${
+      className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-all duration-200 active:scale-[0.97] ${
         checked
-          ? "border-primary/70 bg-primary/10 glow-ring"
+          ? "border-primary/60 bg-primary/10"
           : "border-border bg-secondary/40 hover:border-primary/40"
       }`}
     >
       <span
-        className={`relative h-6 w-11 shrink-0 rounded-full transition-colors duration-300 ${
-          checked ? "bg-primary" : "bg-muted"
+        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 transition-colors duration-200 ${
+          checked
+            ? "border-primary bg-primary text-surface"
+            : "border-muted-foreground/40 bg-transparent text-transparent hover:border-primary/60"
         }`}
       >
-        <span
-          className={`absolute top-0.5 h-5 w-5 rounded-full transition-transform duration-300 ${
-            checked ? "translate-x-[22px] bg-surface" : "translate-x-0.5 bg-destructive"
-          }`}
-          style={{ transitionTimingFunction: "cubic-bezier(0.34,1.56,0.64,1)" }}
-        />
+        <svg
+          className="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
       </span>
       <span className="min-w-0">
         <span className={`block text-xs font-bold ${checked ? "text-primary" : "text-foreground"}`}>

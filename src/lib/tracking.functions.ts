@@ -101,7 +101,19 @@ export const trackParcel = createServerFn({ method: "POST" })
       }
       if (hit?.lastStatus) break;
     }
-    if (!hit?.lastStatus) return { ok: false, error: "NOT_FOUND", code: data.code };
+    if (!hit?.lastStatus) {
+      const g = guessFromCode(data.code);
+      return {
+        ok: true,
+        estimated: true,
+        code: data.code,
+        source: g.source,
+        stageKey: g.stageKey,
+        minDays: g.min,
+        maxDays: g.max,
+      };
+    }
+
 
     const stage = classify(`${hit.lastStatus}`);
     return {

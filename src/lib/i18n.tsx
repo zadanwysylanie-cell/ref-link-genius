@@ -84,6 +84,11 @@ export const DICT: Record<string, { pl: string; en: string }> = {
     en: "No data found for this number. Try again in a few hours.",
   },
   "guide.trackSource": { pl: "Źródło", en: "Source" },
+  "guide.trackEstimated": {
+    pl: "Brak danych na żywo od przewoźnika — szacunek na podstawie typu przesyłki.",
+    en: "No live carrier data — estimate based on the shipment type.",
+  },
+
   "guide.trackOpen": { pl: "Otwórz w", en: "Open in" },
   "guide.trackDay": { pl: "dzień", en: "day" },
   "guide.trackDays": { pl: "dni", en: "days" },

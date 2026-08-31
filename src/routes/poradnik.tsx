@@ -107,10 +107,15 @@ function PackageTracker() {
             </p>
           ) : null}
           <p className="mt-3 text-xs font-bold text-foreground">{t(`track.${result.stageKey}`)}</p>
-          <p className="mt-1 text-[11px] text-muted-foreground">
-            {result.lastStatus}
-            {result.lastTime ? ` · ${result.lastTime}` : ""}
-          </p>
+          {result.estimated ? (
+            <p className="mt-1 text-[11px] text-muted-foreground">{t("guide.trackEstimated")}</p>
+          ) : (
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              {result.lastStatus}
+              {result.lastTime ? ` · ${result.lastTime}` : ""}
+            </p>
+          )}
+
           <p className="mt-2 text-[10px] uppercase tracking-wide text-muted-foreground">
             {t("guide.trackSource")}: {result.source}
           </p>

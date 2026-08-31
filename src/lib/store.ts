@@ -416,8 +416,7 @@ export const useShippingRates = () =>
   useQuery({
     queryKey: ["shipping_rates"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("shipping_rates").select("*").order("sort_order");
-      if (error) throw error;
+      const data = (await getShippingRates()) as any[];
       return (data ?? []).map((r) => ({
         ...r,
         base_price: Number(r.base_price),

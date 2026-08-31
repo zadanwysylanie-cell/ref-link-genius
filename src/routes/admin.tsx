@@ -2328,6 +2328,9 @@ function ImportTab() {
         <button className={btn} disabled={busy} onClick={() => void loadSheet()}>
           Wczytaj arkusz
         </button>
+      </div>
+
+
 
 
       <textarea

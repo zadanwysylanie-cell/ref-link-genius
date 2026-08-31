@@ -29,10 +29,44 @@ const field =
   "w-full rounded-lg border border-border bg-secondary px-3 py-2 text-sm outline-none focus:border-primary";
 const cta = "mt-3 w-full rounded-lg gradient-brand px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-surface-deep";
 
+type Stage = {
+  key: string;
+  min: number;
+  max: number;
+  match: RegExp;
+};
+
+/** Etapy drogi paczki od agenta w Chinach do drzwi w Polsce. */
+const STAGES: Stage[] = [
+  { key: "s1", min: 10, max: 14, match: /(magazyn|warehouse|packed|spakowan|awaiting|oczek)/i },
+  { key: "s2", min: 7, max: 11, match: /(wysłan|shipped|departed|export|left)/i },
+  { key: "s3", min: 4, max: 7, match: /(tranzy|transit|flight|linehaul|arrived at)/i },
+  { key: "s4", min: 2, max: 4, match: /(cło|clo|customs|odprawa|clearance)/i },
+  { key: "s5", min: 1, max: 2, match: /(polsk|poland|sortown|hub|kurier|courier)/i },
+  { key: "s6", min: 0, max: 1, match: /(doręcz|doreacz|out for delivery|paczkomat|pickup|odbior)/i },
+  { key: "s7", min: 0, max: 0, match: /(dostarcz|delivered)/i },
+];
+
+function etaLabel(stage: Stage, dayWord: string, daysWord: string, today: string) {
+  if (stage.max === 0) return today;
+  if (stage.min === stage.max) return `${stage.max} ${stage.max === 1 ? dayWord : daysWord}`;
+  if (stage.min === 0) return `≤ ${stage.max} ${stage.max === 1 ? dayWord : daysWord}`;
+  return `${stage.min}–${stage.max} ${daysWord}`;
+}
+
+function addDays(n: number) {
+  const d = new Date();
+  d.setDate(d.getDate() + n);
+  return d.toLocaleDateString("pl-PL", { day: "2-digit", month: "2-digit" });
+}
+
 function PackageTracker() {
   const { t } = useLang();
   const [code, setCode] = useState("");
-  const [status, setStatus] = useState<string | null>(null);
+  const [index, setIndex] = useState(2);
+  const stage = STAGES[index]!;
+  const progress = Math.round((index / (STAGES.length - 1)) * 100);
+  const eta = etaLabel(stage, t("guide.trackDay"), t("guide.trackDays"), t("guide.trackToday"));
 
   return (
     <div className={card}>
@@ -42,31 +76,81 @@ function PackageTracker() {
         className={`${field} mt-3`}
         placeholder={t("guide.trackPlaceholder")}
         value={code}
-        onChange={(e) => setCode(e.target.value)}
+        onChange={(e) => {
+          const value = e.target.value;
+          setCode(value);
+          const hit = STAGES.findIndex((s) => s.match.test(value));
+          if (hit >= 0) setIndex(hit);
+        }}
       />
-      <button
-        className={cta}
-        onClick={() => setStatus(code.trim() ? `${t("guide.parcel")} ${code.trim()} — ${t("guide.trackResult")}` : null)}
-      >
-        {t("guide.trackCta")}
-      </button>
-      {status ? <p className="mt-3 text-xs text-brand-cyan">{status}</p> : null}
+
+      <p className="mt-4 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+        {t("guide.trackStageQ")}
+      </p>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {STAGES.map((s, i) => (
+          <button
+            key={s.key}
+            type="button"
+            onClick={() => setIndex(i)}
+            aria-pressed={i === index}
+            className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-all duration-200 ${
+              i === index
+                ? "border-primary bg-primary/15 text-primary"
+                : i < index
+                  ? "border-border bg-secondary text-muted-foreground"
+                  : "border-border text-muted-foreground hover:border-primary/60 hover:text-foreground"
+            }`}
+          >
+            {t(`track.${s.key}`)}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+        <div
+          className="h-full rounded-full gradient-brand transition-all duration-500"
+          style={{ width: `${Math.max(progress, 6)}%` }}
+        />
+      </div>
+
+      <div className="mt-4 rounded-xl border border-primary/30 bg-primary/5 p-3">
+        <p className="text-xs font-bold text-foreground">{t(`track.${stage.key}`)}</p>
+        <p className="mt-1 text-[11px] text-muted-foreground">{t(`track.${stage.key}d`)}</p>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="rounded-md bg-primary/15 px-2 py-1 text-[11px] font-extrabold text-primary">
+            {t("guide.trackEta")}: {eta}
+          </span>
+          {stage.max > 0 ? (
+            <span className="text-[11px] text-muted-foreground">
+              {t("guide.trackArrival")}: {addDays(stage.min)}
+              {stage.min === stage.max ? "" : ` – ${addDays(stage.max)}`}
+            </span>
+          ) : null}
+        </div>
+      </div>
+
       <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
-        {["17track.net", "parcelsapp.com", "cainiao.com"].map((h) => (
+        {[
+          { host: "17track.net", url: `https://t.17track.net/en#nums=${encodeURIComponent(code.trim())}` },
+          { host: "parcelsapp.com", url: `https://parcelsapp.com/en/tracking/${encodeURIComponent(code.trim())}` },
+          { host: "cainiao.com", url: "https://global.cainiao.com/newDetail.htm" },
+        ].map((h) => (
           <a
-            key={h}
-            href={`https://${h}`}
+            key={h.host}
+            href={h.url}
             target="_blank"
             rel="noreferrer"
             className="rounded-md border border-border px-2 py-1 text-muted-foreground hover:border-primary hover:text-primary"
           >
-            {h}
+            {t("guide.trackOpen")} {h.host}
           </a>
         ))}
       </div>
     </div>
   );
 }
+
 
 function QcInspector() {
   const { t } = useLang();

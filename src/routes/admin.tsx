@@ -1404,17 +1404,43 @@ function ProductsTab() {
           </div>
 
           <h3 className="mt-5 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+            Oznaczenia produktu
+          </h3>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <ToggleChip
+              icon="🛡"
+              label="Zweryfikowany"
+              hint="Znaczek w rogu produktu"
+              checked={form.verified}
+              onToggle={() => setForm({ ...form, verified: !form.verified })}
+            />
+            <ToggleChip
+              icon="🔥"
+              label="Promowany"
+              hint="Wyżej na liście"
+              checked={form.promoted}
+              onToggle={() => setForm({ ...form, promoted: !form.promoted })}
+            />
+            <ToggleChip
+              icon="👛"
+              label="Girl Zone"
+              hint="Produkt damski"
+              checked={form.for_women}
+              onToggle={() => setForm({ ...form, for_women: !form.for_women })}
+            />
+            <ToggleChip
+              icon="🏠"
+              label="Strona główna"
+              hint="Produkt sprzedawcy też na głównej"
+              checked={form.show_on_home}
+              onToggle={() => setForm({ ...form, show_on_home: !form.show_on_home })}
+            />
+          </div>
+
+          <h3 className="mt-5 text-xs font-bold uppercase tracking-wide text-muted-foreground">
             Statystyki (tylko Super Admin)
           </h3>
           <div className="mt-2 grid gap-3 sm:grid-cols-4">
-            <label className="flex items-end gap-2 text-xs font-semibold text-muted-foreground">
-              <input
-                type="checkbox"
-                checked={form.verified}
-                onChange={(e) => setForm({ ...form, verified: e.target.checked })}
-              />
-              🛡 Zweryfikowany
-            </label>
             <label className="text-xs font-semibold text-muted-foreground">
               👁 Wyświetlenia
               <input
@@ -1424,31 +1450,8 @@ function ProductsTab() {
                 onChange={(e) => setForm({ ...form, views: Number(e.target.value) })}
               />
             </label>
-            <label className="flex items-end gap-2 text-xs font-semibold text-muted-foreground">
-              <input
-                type="checkbox"
-                checked={form.promoted}
-                onChange={(e) => setForm({ ...form, promoted: e.target.checked })}
-              />
-              Promowany
-            </label>
-            <label className="flex items-end gap-2 text-xs font-semibold text-muted-foreground">
-              <input
-                type="checkbox"
-                checked={form.for_women}
-                onChange={(e) => setForm({ ...form, for_women: e.target.checked })}
-              />
-              👛 Girl Zone (dla kobiet)
-            </label>
-            <label className="flex items-end gap-2 text-xs font-semibold text-muted-foreground">
-              <input
-                type="checkbox"
-                checked={form.show_on_home}
-                onChange={(e) => setForm({ ...form, show_on_home: e.target.checked })}
-              />
-              🏠 Pokaż też na stronie głównej (produkt sprzedawcy)
-            </label>
           </div>
+
 
 
           <h3 className="mt-5 text-xs font-bold uppercase tracking-wide text-muted-foreground">

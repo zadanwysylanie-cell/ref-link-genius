@@ -21,12 +21,27 @@ export type TrackResult = {
   maxDays?: number;
   lastStatus?: string;
   lastTime?: string;
+  /** true = brak danych na żywo, szacunek na podstawie przewoźnika */
+  estimated?: boolean;
 };
+
+/** Szacunek na podstawie formatu numeru, gdy przewoźnik nie udostępnia danych. */
+function guessFromCode(code: string) {
+  const c = code.toUpperCase();
+  if (/^CJ/.test(c)) return { source: "CJPacket", stageKey: "s2", min: 9, max: 15 };
+  if (/^(YT|YUN)/.test(c)) return { source: "Yun Express", stageKey: "s2", min: 8, max: 14 };
+  if (/^(SF|SFC)/.test(c)) return { source: "SF Express", stageKey: "s2", min: 5, max: 9 };
+  if (/^(LP|UF|GV|SY|4PX)/.test(c)) return { source: "Cainiao / 4PX", stageKey: "s2", min: 10, max: 16 };
+  if (/(PL|PLA)$/.test(c) || /^(6|00)\d{9,}$/.test(c)) return { source: "Kurier PL", stageKey: "s5", min: 1, max: 2 };
+  if (/CN$/.test(c)) return { source: "China Post", stageKey: "s2", min: 12, max: 20 };
+  return { source: "Auto-detect", stageKey: "s3", min: 6, max: 12 };
+}
 
 function classify(text: string) {
   for (const s of STAGES) if (s.match.test(text)) return s;
   return STAGES[6];
 }
+
 
 /** Cainiao global tracking — darmowe API pokrywające większość przesyłek z Chin. */
 async function fromCainiao(code: string) {
@@ -86,7 +101,19 @@ export const trackParcel = createServerFn({ method: "POST" })
       }
       if (hit?.lastStatus) break;
     }
-    if (!hit?.lastStatus) return { ok: false, error: "NOT_FOUND", code: data.code };
+    if (!hit?.lastStatus) {
+      const g = guessFromCode(data.code);
+      return {
+        ok: true,
+        estimated: true,
+        code: data.code,
+        source: g.source,
+        stageKey: g.stageKey,
+        minDays: g.min,
+        maxDays: g.max,
+      };
+    }
+
 
     const stage = classify(`${hit.lastStatus}`);
     return {

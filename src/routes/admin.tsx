@@ -1057,25 +1057,25 @@ function ToggleChip({
       type="button"
       aria-pressed={checked}
       onClick={onToggle}
-      className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-all duration-200 active:scale-[0.97] ${
+      className={`flex items-center gap-2 rounded-lg border p-2 text-left transition-all duration-200 active:scale-[0.97] ${
         checked
           ? "border-primary/60 bg-primary/10"
           : "border-border bg-secondary/40 hover:border-primary/40"
       }`}
     >
       <span
-        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 transition-colors duration-200 ${
+        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors duration-200 ${
           checked
             ? "border-primary bg-primary text-surface"
             : "border-muted-foreground/40 bg-transparent text-transparent hover:border-primary/60"
         }`}
       >
         <svg
-          className="h-4 w-4"
+          className="h-3 w-3"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          strokeWidth="3"
+          strokeWidth="4"
           strokeLinecap="round"
           strokeLinejoin="round"
         >
@@ -1083,10 +1083,10 @@ function ToggleChip({
         </svg>
       </span>
       <span className="min-w-0">
-        <span className={`block text-xs font-bold ${checked ? "text-primary" : "text-foreground"}`}>
+        <span className={`block text-[11px] font-bold ${checked ? "text-primary" : "text-foreground"}`}>
           {icon} {label}
         </span>
-        {hint ? <span className="block text-[11px] text-muted-foreground">{hint}</span> : null}
+        {hint ? <span className="block text-[10px] text-muted-foreground">{hint}</span> : null}
       </span>
     </button>
   );

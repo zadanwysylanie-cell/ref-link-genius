@@ -124,41 +124,36 @@ export function OutfitGenerator({
               setIncludeWomen((v) => !v);
               setOutfit({});
             }}
-            className={`group relative flex items-center gap-3 rounded-full border px-4 py-2.5 text-xs font-bold uppercase tracking-wide transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+            className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-left transition-all duration-200 active:scale-[0.97] ${
               includeWomen
-                ? "border-primary/60 bg-primary/15 text-primary shadow-[0_0_18px_rgba(0,242,254,0.18)]"
-                : "border-border/80 bg-secondary/40 text-muted-foreground hover:border-primary/40 hover:bg-secondary/60"
+                ? "border-primary/60 bg-primary/10"
+                : "border-border bg-secondary/40 hover:border-primary/40"
             }`}
             aria-pressed={includeWomen}
           >
             <span
-              className={`relative flex h-6 w-11 items-center rounded-full border transition-colors duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-                includeWomen ? "border-primary bg-primary" : "border-destructive bg-destructive"
+              className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors duration-200 ${
+                includeWomen
+                  ? "border-primary bg-primary text-surface"
+                  : "border-muted-foreground/40 bg-transparent text-transparent hover:border-primary/60"
               }`}
             >
-              <span
-                className={`mx-0.5 flex h-5 w-5 items-center justify-center rounded-full shadow-sm transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-90 ${
-                  includeWomen ? "translate-x-5 bg-surface" : "translate-x-0 bg-destructive-foreground"
-                }`}
+              <svg
+                className="h-3 w-3"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <span
-                  className={`text-[10px] transition-all duration-200 ${
-                    includeWomen ? "scale-100 opacity-100" : "scale-50 opacity-0"
-                  }`}
-                >
-                  👩
-                </span>
-              </span>
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
             </span>
-            <span className="flex items-center gap-1.5">
-              <span
-                className={`transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-                  includeWomen ? "scale-110" : "scale-100"
-                }`}
-              >
-                👩
+            <span className="min-w-0">
+              <span className={`block text-[11px] font-bold ${includeWomen ? "text-primary" : "text-foreground"}`}>
+                👩 {t("outfit.includeWomen")}
               </span>
-              <span>{t("outfit.includeWomen")}</span>
             </span>
           </button>
           {jacketOn ? (

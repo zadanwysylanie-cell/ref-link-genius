@@ -1038,7 +1038,55 @@ function CategoriesTab() {
 /** Ile produktów pokazujemy naraz na liście w panelu. */
 const ADMIN_PAGE_SIZE = 50;
 
+/** Duży, czytelny przełącznik on/off dla flag produktu. */
+function ToggleChip({
+  icon,
+  label,
+  hint,
+  checked,
+  onToggle,
+}: {
+  icon: string;
+  label: string;
+  hint?: string;
+  checked: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={checked}
+      onClick={onToggle}
+      className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-all duration-300 active:scale-[0.98] ${
+        checked
+          ? "border-primary/70 bg-primary/10 glow-ring"
+          : "border-border bg-secondary/40 hover:border-primary/40"
+      }`}
+    >
+      <span
+        className={`relative h-6 w-11 shrink-0 rounded-full transition-colors duration-300 ${
+          checked ? "bg-primary" : "bg-muted"
+        }`}
+      >
+        <span
+          className={`absolute top-0.5 h-5 w-5 rounded-full transition-transform duration-300 ${
+            checked ? "translate-x-[22px] bg-surface" : "translate-x-0.5 bg-destructive"
+          }`}
+          style={{ transitionTimingFunction: "cubic-bezier(0.34,1.56,0.64,1)" }}
+        />
+      </span>
+      <span className="min-w-0">
+        <span className={`block text-xs font-bold ${checked ? "text-primary" : "text-foreground"}`}>
+          {icon} {label}
+        </span>
+        {hint ? <span className="block text-[11px] text-muted-foreground">{hint}</span> : null}
+      </span>
+    </button>
+  );
+}
+
 function ProductsTab() {
+
   const { data: products } = useProducts();
   const { data: categories } = useCategories();
   const { data: agents } = useAgents();

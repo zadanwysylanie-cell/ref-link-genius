@@ -227,5 +227,5 @@ export const getShippingRates = createServerFn({ method: "GET" }).handler(async 
     .select("*")
     .order("sort_order");
   if (error) throw new Error("Failed to load shipping rates");
-  return (data ?? []) as Record<string, unknown>[];
+  return JSON.parse(JSON.stringify(data ?? [])) as any[];
 });

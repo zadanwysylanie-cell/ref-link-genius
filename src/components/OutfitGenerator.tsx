@@ -127,7 +127,7 @@ export function OutfitGenerator({
             className={`group relative flex items-center gap-3 rounded-full border px-4 py-2.5 text-xs font-bold uppercase tracking-wide transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
               includeWomen
                 ? "border-primary/60 bg-primary/15 text-primary shadow-[0_0_18px_rgba(0,242,254,0.18)]"
-                : "border-destructive/60 bg-destructive/15 text-destructive hover:border-destructive hover:bg-destructive/25"
+                : "border-border/80 bg-secondary/40 text-muted-foreground hover:border-primary/40 hover:bg-secondary/60"
             }`}
             aria-pressed={includeWomen}
           >
@@ -137,8 +137,8 @@ export function OutfitGenerator({
               }`}
             >
               <span
-                className={`mx-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-surface shadow-sm transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-90 ${
-                  includeWomen ? "translate-x-5" : "translate-x-0"
+                className={`mx-0.5 flex h-5 w-5 items-center justify-center rounded-full shadow-sm transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-90 ${
+                  includeWomen ? "translate-x-5 bg-surface" : "translate-x-0 bg-destructive-foreground"
                 }`}
               >
                 <span

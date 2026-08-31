@@ -69,16 +69,52 @@ export const DICT: Record<string, { pl: string; en: string }> = {
   },
   "guide.trackTitle": { pl: "📦 Śledzenie paczek", en: "📦 Package tracking" },
   "guide.trackDesc": {
-    pl: "Standardowa dostawa 7–12 dni roboczych.",
-    en: "Standard delivery 7–12 business days.",
+    pl: "Wklej numer przesyłki i zaznacz ostatni status — powiemy Ci, gdzie jest paczka i ile jeszcze poczekasz.",
+    en: "Paste your tracking number and pick the latest status — we'll tell you where the parcel is and how long is left.",
   },
   "guide.trackPlaceholder": { pl: "Numer przesyłki", en: "Tracking number" },
   "guide.trackCta": { pl: "Sprawdź status", en: "Check status" },
-  "guide.trackResult": {
-    pl: "w tranzycie, szacowana dostawa 7–12 dni.",
-    en: "in transit, estimated delivery 7–12 days.",
-  },
+  "guide.trackStageQ": { pl: "Ostatni status paczki:", en: "Latest parcel status:" },
+  "guide.trackEta": { pl: "Przewidywany czas dostawy", en: "Estimated delivery time" },
+  "guide.trackArrival": { pl: "Orientacyjna data", en: "Approximate date" },
+  "guide.trackOpen": { pl: "Otwórz w", en: "Open in" },
+  "guide.trackDay": { pl: "dzień", en: "day" },
+  "guide.trackDays": { pl: "dni", en: "days" },
+  "guide.trackToday": { pl: "Paczka jest już u Ciebie 🎉", en: "Your parcel has arrived 🎉" },
   "guide.parcel": { pl: "Paczka", en: "Parcel" },
+
+  "track.s1": { pl: "W magazynie agenta (Chiny)", en: "At agent's warehouse (China)" },
+  "track.s1d": {
+    pl: "Paczka czeka na wysyłkę lub jest pakowana w Chinach.",
+    en: "The parcel is waiting to be packed and shipped from China.",
+  },
+  "track.s2": { pl: "Wysłana z Chin", en: "Shipped from China" },
+  "track.s2d": {
+    pl: "Paczka opuściła magazyn i czeka na odprawę eksportową / lot.",
+    en: "The parcel left the warehouse and awaits export clearance / flight.",
+  },
+  "track.s3": { pl: "Transport międzynarodowy", en: "International transit" },
+  "track.s3d": {
+    pl: "Paczka jest w drodze do Europy — to najdłuższy etap.",
+    en: "The parcel is en route to Europe — the longest stage.",
+  },
+  "track.s4": { pl: "Odprawa celna w UE", en: "EU customs clearance" },
+  "track.s4d": {
+    pl: "Paczka wylądowała w UE i przechodzi odprawę celną.",
+    en: "The parcel landed in the EU and is going through customs.",
+  },
+  "track.s5": { pl: "W Polsce / u kuriera", en: "In Poland / with courier" },
+  "track.s5d": {
+    pl: "Paczka jest już w kraju — kurier doręczy ją maksymalnie w 2 dni.",
+    en: "The parcel is in the country — the courier delivers within 2 days max.",
+  },
+  "track.s6": { pl: "Do odbioru / w doręczeniu", en: "Out for delivery / ready for pickup" },
+  "track.s6d": {
+    pl: "Kurier jedzie z paczką albo czeka ona w punkcie/paczkomacie.",
+    en: "The courier is on the way or the parcel waits at a pickup point.",
+  },
+  "track.s7": { pl: "Dostarczona", en: "Delivered" },
+  "track.s7d": { pl: "Paczka została dostarczona.", en: "The parcel has been delivered." },
   "guide.qcTitle": { pl: "🔍 QC Inspector / Finder", en: "🔍 QC Inspector / Finder" },
   "guide.qcDesc": {
     pl: "Wklej ID lub link produktu, aby otworzyć zdjęcia QC.",

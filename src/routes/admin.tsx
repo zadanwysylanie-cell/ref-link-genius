@@ -1038,7 +1038,55 @@ function CategoriesTab() {
 /** Ile produktów pokazujemy naraz na liście w panelu. */
 const ADMIN_PAGE_SIZE = 50;
 
+/** Duży, czytelny przełącznik on/off dla flag produktu. */
+function ToggleChip({
+  icon,
+  label,
+  hint,
+  checked,
+  onToggle,
+}: {
+  icon: string;
+  label: string;
+  hint?: string;
+  checked: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={checked}
+      onClick={onToggle}
+      className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-all duration-300 active:scale-[0.98] ${
+        checked
+          ? "border-primary/70 bg-primary/10 glow-ring"
+          : "border-border bg-secondary/40 hover:border-primary/40"
+      }`}
+    >
+      <span
+        className={`relative h-6 w-11 shrink-0 rounded-full transition-colors duration-300 ${
+          checked ? "bg-primary" : "bg-muted"
+        }`}
+      >
+        <span
+          className={`absolute top-0.5 h-5 w-5 rounded-full transition-transform duration-300 ${
+            checked ? "translate-x-[22px] bg-surface" : "translate-x-0.5 bg-destructive"
+          }`}
+          style={{ transitionTimingFunction: "cubic-bezier(0.34,1.56,0.64,1)" }}
+        />
+      </span>
+      <span className="min-w-0">
+        <span className={`block text-xs font-bold ${checked ? "text-primary" : "text-foreground"}`}>
+          {icon} {label}
+        </span>
+        {hint ? <span className="block text-[11px] text-muted-foreground">{hint}</span> : null}
+      </span>
+    </button>
+  );
+}
+
 function ProductsTab() {
+
   const { data: products } = useProducts();
   const { data: categories } = useCategories();
   const { data: agents } = useAgents();
@@ -1404,17 +1452,43 @@ function ProductsTab() {
           </div>
 
           <h3 className="mt-5 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+            Oznaczenia produktu
+          </h3>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <ToggleChip
+              icon="🛡"
+              label="Zweryfikowany"
+              hint="Znaczek w rogu produktu"
+              checked={form.verified}
+              onToggle={() => setForm({ ...form, verified: !form.verified })}
+            />
+            <ToggleChip
+              icon="🔥"
+              label="Promowany"
+              hint="Wyżej na liście"
+              checked={form.promoted}
+              onToggle={() => setForm({ ...form, promoted: !form.promoted })}
+            />
+            <ToggleChip
+              icon="👛"
+              label="Girl Zone"
+              hint="Produkt damski"
+              checked={form.for_women}
+              onToggle={() => setForm({ ...form, for_women: !form.for_women })}
+            />
+            <ToggleChip
+              icon="🏠"
+              label="Strona główna"
+              hint="Produkt sprzedawcy też na głównej"
+              checked={form.show_on_home}
+              onToggle={() => setForm({ ...form, show_on_home: !form.show_on_home })}
+            />
+          </div>
+
+          <h3 className="mt-5 text-xs font-bold uppercase tracking-wide text-muted-foreground">
             Statystyki (tylko Super Admin)
           </h3>
           <div className="mt-2 grid gap-3 sm:grid-cols-4">
-            <label className="flex items-end gap-2 text-xs font-semibold text-muted-foreground">
-              <input
-                type="checkbox"
-                checked={form.verified}
-                onChange={(e) => setForm({ ...form, verified: e.target.checked })}
-              />
-              🛡 Zweryfikowany
-            </label>
             <label className="text-xs font-semibold text-muted-foreground">
               👁 Wyświetlenia
               <input
@@ -1424,31 +1498,8 @@ function ProductsTab() {
                 onChange={(e) => setForm({ ...form, views: Number(e.target.value) })}
               />
             </label>
-            <label className="flex items-end gap-2 text-xs font-semibold text-muted-foreground">
-              <input
-                type="checkbox"
-                checked={form.promoted}
-                onChange={(e) => setForm({ ...form, promoted: e.target.checked })}
-              />
-              Promowany
-            </label>
-            <label className="flex items-end gap-2 text-xs font-semibold text-muted-foreground">
-              <input
-                type="checkbox"
-                checked={form.for_women}
-                onChange={(e) => setForm({ ...form, for_women: e.target.checked })}
-              />
-              👛 Girl Zone (dla kobiet)
-            </label>
-            <label className="flex items-end gap-2 text-xs font-semibold text-muted-foreground">
-              <input
-                type="checkbox"
-                checked={form.show_on_home}
-                onChange={(e) => setForm({ ...form, show_on_home: e.target.checked })}
-              />
-              🏠 Pokaż też na stronie głównej (produkt sprzedawcy)
-            </label>
           </div>
+
 
 
           <h3 className="mt-5 text-xs font-bold uppercase tracking-wide text-muted-foreground">
@@ -2241,30 +2292,46 @@ function ImportTab() {
         </button>
       </div>
 
+      <label
+        className="mb-3 flex cursor-pointer flex-col items-center gap-1 rounded-2xl border-2 border-dashed border-primary/50 bg-secondary/40 p-6 text-center transition-colors hover:border-primary hover:bg-secondary/70"
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={async (e) => {
+          e.preventDefault();
+          const file = e.dataTransfer.files?.[0];
+          if (file) setText(await file.text());
+        }}
+      >
+        <span className="text-2xl">📄</span>
+        <span className="text-sm font-bold text-primary">Wgraj plik CSV z komputera / telefonu</span>
+        <span className="text-[11px] text-muted-foreground">
+          Kliknij, aby wybrać plik, albo przeciągnij go tutaj (.csv, .tsv, .txt)
+        </span>
+        <input
+          type="file"
+          accept=".csv,.tsv,.txt,text/csv,text/plain"
+          className="hidden"
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (file) setText(await file.text());
+            e.target.value = "";
+          }}
+        />
+      </label>
+
       <div className="flex flex-wrap gap-2">
         <input
           className={`${input} sm:max-w-lg`}
-          placeholder="Link do Google Sheets (udostępniony publicznie) lub pliku CSV"
+          placeholder="…lub link do Google Sheets / pliku CSV"
           value={sheetUrl}
           onChange={(e) => setSheetUrl(e.target.value)}
         />
         <button className={btn} disabled={busy} onClick={() => void loadSheet()}>
           Wczytaj arkusz
         </button>
-        <label className={`${btnGhost} cursor-pointer`}>
-          Wgraj plik CSV
-          <input
-            type="file"
-            accept=".csv,.tsv,text/csv,text/plain"
-            className="hidden"
-            onChange={async (e) => {
-              const file = e.target.files?.[0];
-              if (file) setText(await file.text());
-              e.target.value = "";
-            }}
-          />
-        </label>
       </div>
+
+
+
 
       <textarea
         className={`${input} mt-4 min-h-40 font-mono text-xs`}

@@ -4,6 +4,8 @@ import { useAgents, useGuideSteps, useSettings } from "@/lib/store";
 import { HaulCalculator } from "@/components/HaulCalculator";
 import { convertLink, extractSourceLink } from "@/lib/linkConverter";
 import { useLang } from "@/lib/i18n";
+import { useServerFn } from "@tanstack/react-start";
+import { trackParcel, type TrackResult } from "@/lib/tracking.functions";
 
 export const Route = createFileRoute("/poradnik")({
   head: () => ({

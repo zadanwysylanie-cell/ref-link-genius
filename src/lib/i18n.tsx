@@ -77,6 +77,13 @@ export const DICT: Record<string, { pl: string; en: string }> = {
   "guide.trackStageQ": { pl: "Ostatni status paczki:", en: "Latest parcel status:" },
   "guide.trackEta": { pl: "Przewidywany czas dostawy", en: "Estimated delivery time" },
   "guide.trackArrival": { pl: "Orientacyjna data", en: "Approximate date" },
+  "guide.trackLoading": { pl: "Sprawdzam…", en: "Checking…" },
+  "guide.trackShort": { pl: "Podaj poprawny numer przesyłki.", en: "Enter a valid tracking number." },
+  "guide.trackNotFound": {
+    pl: "Nie znaleziono danych dla tego numeru. Spróbuj ponownie za kilka godzin.",
+    en: "No data found for this number. Try again in a few hours.",
+  },
+  "guide.trackSource": { pl: "Źródło", en: "Source" },
   "guide.trackOpen": { pl: "Otwórz w", en: "Open in" },
   "guide.trackDay": { pl: "dzień", en: "day" },
   "guide.trackDays": { pl: "dni", en: "days" },

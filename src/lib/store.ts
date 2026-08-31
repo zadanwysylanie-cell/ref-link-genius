@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { getPanelToken } from "@/lib/panelToken";
-import { uploadImage } from "@/lib/secure.functions";
+import { uploadImage, getShippingRates } from "@/lib/secure.functions";
 
 export type Agent = {
   id: string;

@@ -69,8 +69,8 @@ export const DICT: Record<string, { pl: string; en: string }> = {
   },
   "guide.trackTitle": { pl: "📦 Śledzenie paczek", en: "📦 Package tracking" },
   "guide.trackDesc": {
-    pl: "Wklej numer przesyłki i zaznacz ostatni status — powiemy Ci, gdzie jest paczka i ile jeszcze poczekasz.",
-    en: "Paste your tracking number and pick the latest status — we'll tell you where the parcel is and how long is left.",
+    pl: "Wpisz numer przesyłki — pobierzemy status z sieci przewoźników i oszacujemy czas dostawy.",
+    en: "Enter your tracking number — we fetch the carrier status and estimate the delivery time.",
   },
   "guide.trackPlaceholder": { pl: "Numer przesyłki", en: "Tracking number" },
   "guide.trackCta": { pl: "Sprawdź status", en: "Check status" },

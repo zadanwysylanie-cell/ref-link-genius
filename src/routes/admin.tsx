@@ -2292,30 +2292,43 @@ function ImportTab() {
         </button>
       </div>
 
+      <label
+        className="mb-3 flex cursor-pointer flex-col items-center gap-1 rounded-2xl border-2 border-dashed border-primary/50 bg-secondary/40 p-6 text-center transition-colors hover:border-primary hover:bg-secondary/70"
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={async (e) => {
+          e.preventDefault();
+          const file = e.dataTransfer.files?.[0];
+          if (file) setText(await file.text());
+        }}
+      >
+        <span className="text-2xl">📄</span>
+        <span className="text-sm font-bold text-primary">Wgraj plik CSV z komputera / telefonu</span>
+        <span className="text-[11px] text-muted-foreground">
+          Kliknij, aby wybrać plik, albo przeciągnij go tutaj (.csv, .tsv, .txt)
+        </span>
+        <input
+          type="file"
+          accept=".csv,.tsv,.txt,text/csv,text/plain"
+          className="hidden"
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (file) setText(await file.text());
+            e.target.value = "";
+          }}
+        />
+      </label>
+
       <div className="flex flex-wrap gap-2">
         <input
           className={`${input} sm:max-w-lg`}
-          placeholder="Link do Google Sheets (udostępniony publicznie) lub pliku CSV"
+          placeholder="…lub link do Google Sheets / pliku CSV"
           value={sheetUrl}
           onChange={(e) => setSheetUrl(e.target.value)}
         />
         <button className={btn} disabled={busy} onClick={() => void loadSheet()}>
           Wczytaj arkusz
         </button>
-        <label className={`${btnGhost} cursor-pointer`}>
-          Wgraj plik CSV
-          <input
-            type="file"
-            accept=".csv,.tsv,text/csv,text/plain"
-            className="hidden"
-            onChange={async (e) => {
-              const file = e.target.files?.[0];
-              if (file) setText(await file.text());
-              e.target.value = "";
-            }}
-          />
-        </label>
-      </div>
+
 
       <textarea
         className={`${input} mt-4 min-h-40 font-mono text-xs`}

@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { getPanelToken } from "@/lib/panelToken";
 import { uploadImage, getShippingRates } from "@/lib/secure.functions";
+import { withMyRef } from "@/lib/linkConverter";
 
 export type Agent = {
   id: string;
@@ -190,7 +191,8 @@ export const useAgents = () =>
         const key = agentKey(a.name);
         if (!key || seen.has(key)) continue;
         seen.add(key);
-        unique.push(a);
+        // Wszystkie linki rejestracyjne zawsze z moim refem.
+        unique.push({ ...a, referral_url: withMyRef(a.referral_url) });
       }
       return unique;
     },
@@ -237,7 +239,13 @@ export const useProducts = () =>
         return {
           ...p,
           image_url: main,
-          agent_links: (p.agent_links ?? {}) as Record<string, string>,
+          // Linki "kup przez agenta" zawsze z moim refem.
+          agent_links: Object.fromEntries(
+            Object.entries((p.agent_links ?? {}) as Record<string, string>).map(([k, v]) => [
+              k,
+              withMyRef(v),
+            ]),
+          ),
           sizes: Array.from(new Set(((p.sizes ?? []) as string[]).filter(Boolean))),
           images: extra,
           batch: p.batch ?? "",
@@ -435,7 +443,7 @@ export const useShippingRates = () =>
         price_table: (r.price_table ?? {}) as Record<string, number>,
         discount_percent: Number(r.discount_percent ?? 0),
         coupon_code: r.coupon_code ?? "",
-        signup_url: (r as { signup_url?: string }).signup_url ?? "",
+        signup_url: withMyRef((r as { signup_url?: string }).signup_url ?? ""),
       })) as ShippingRate[];
     },
   });

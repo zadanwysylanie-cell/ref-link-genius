@@ -134,9 +134,17 @@ export const useSellers = () =>
   useQuery({
     queryKey: ["sellers"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("sellers").select(SELLER_COLUMNS).order("name");
-      if (error) throw error;
-      return (data ?? []) as Seller[];
+      const { LOCAL_SELLERS_PUBLIC } = await import("@/data/local-sellers");
+      const { data, error } = await supabase
+        .from("sellers")
+        .select(SELLER_COLUMNS)
+        .order("name")
+        .then((r) => r, () => ({ data: null, error: new Error("offline") }));
+      const remote = error ? [] : ((data ?? []) as Seller[]);
+      // Konta lokalne uzupełniają listę z bazy (te same id nie są duplikowane).
+      const merged = [...remote];
+      for (const s of LOCAL_SELLERS_PUBLIC) if (!merged.some((r) => r.id === s.id)) merged.push(s);
+      return merged;
     },
   });
 
@@ -416,7 +424,8 @@ export const useShippingRates = () =>
   useQuery({
     queryKey: ["shipping_rates"],
     queryFn: async () => {
-      const data = (await getShippingRates()) as any[];
+      const { LOCAL_SHIPPING_RATES } = await import("@/data/localShipping");
+      const data = (await getShippingRates().catch(() => LOCAL_SHIPPING_RATES)) as any[];
       return (data ?? []).map((r) => ({
         ...r,
         base_price: Number(r.base_price),

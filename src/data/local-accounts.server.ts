@@ -33,7 +33,7 @@ export const LOCAL_SELLERS: LocalSellerAccount[] = [
   {
     id: "11111111-1111-4111-8111-111111111111",
     username: "sprzedawca",
-    passwordHash: "0a0b2b1a5e1a0f4a2e0d1c4b0e3d6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e",
+    passwordHash: "25716186d916be706a883d3c088011ed7451865b57e2cfe02f8a61927ac3729a",
     active: true,
   },
 ];

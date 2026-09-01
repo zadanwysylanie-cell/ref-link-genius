@@ -257,11 +257,17 @@ export const uploadImage = createServerFn({ method: "POST" })
 
 /** Public shipping rates incl. coupon fields, served server-side so they are not exposed via the public data API. */
 export const getShippingRates = createServerFn({ method: "GET" }).handler(async () => {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin
-    .from("shipping_rates")
-    .select("*")
-    .order("sort_order");
-  if (error) throw new Error("Failed to load shipping rates");
-  return JSON.parse(JSON.stringify(data ?? [])) as any[];
+  const { LOCAL_SHIPPING_RATES } = await import("@/data/localShipping");
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("shipping_rates")
+      .select("*")
+      .order("sort_order");
+    if (error || !data?.length) throw new Error("no rows");
+    return JSON.parse(JSON.stringify(data)) as any[];
+  } catch {
+    // Brak bazy (np. hosting bez kluczy) — używamy cennika zapisanego w kodzie.
+    return JSON.parse(JSON.stringify(LOCAL_SHIPPING_RATES)) as any[];
+  }
 });

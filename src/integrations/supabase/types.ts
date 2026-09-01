@@ -176,6 +176,13 @@ export type Database = {
             referencedRelation: "sellers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "products_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       promos: {
@@ -351,7 +358,45 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      sellers_public: {
+        Row: {
+          active: boolean | null
+          banner_url: string | null
+          created_at: string | null
+          description: string | null
+          external_url: string | null
+          id: string | null
+          link_mode: string | null
+          logo_url: string | null
+          name: string | null
+          slug: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          banner_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          external_url?: string | null
+          id?: string | null
+          link_mode?: string | null
+          logo_url?: string | null
+          name?: string | null
+          slug?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          banner_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          external_url?: string | null
+          id?: string | null
+          link_mode?: string | null
+          logo_url?: string | null
+          name?: string | null
+          slug?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

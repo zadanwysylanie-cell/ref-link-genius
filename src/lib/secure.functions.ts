@@ -29,23 +29,38 @@ export const adminLogin = createServerFn({ method: "POST" })
     return { username, passwordHash };
   })
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { issueToken } = await import("@/lib/session.server");
-    const { data: rows } = await supabaseAdmin
-      .from("settings")
-      .select("key, value")
-      .in("key", ["admin_username", "admin_password_hash"]);
-    const map = Object.fromEntries((rows ?? []).map((r) => [r.key, r.value]));
-    const expectedUser = map["admin_username"] || DEFAULT_ADMIN_USER;
-    const expectedHash = map["admin_password_hash"] || "";
+    const { LOCAL_ADMIN } = await import("@/data/local-accounts.server");
+
+    // 1) Konto lokalne — działa zawsze, także bez połączenia z bazą.
     if (
-      !expectedHash ||
-      data.username.toLowerCase() !== expectedUser.toLowerCase() ||
-      data.passwordHash !== expectedHash
+      data.username.toLowerCase() === LOCAL_ADMIN.username.toLowerCase() &&
+      data.passwordHash === LOCAL_ADMIN.passwordHash
     ) {
-      return { ok: false as const };
+      return { ok: true as const, token: issueToken({ role: "admin" }) };
     }
-    return { ok: true as const, token: issueToken({ role: "admin" }) };
+
+    // 2) Konto zapisane w bazie (gdy jest dostępna).
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: rows } = await supabaseAdmin
+        .from("settings")
+        .select("key, value")
+        .in("key", ["admin_username", "admin_password_hash"]);
+      const map = Object.fromEntries((rows ?? []).map((r) => [r.key, r.value]));
+      const expectedUser = map["admin_username"] || DEFAULT_ADMIN_USER;
+      const expectedHash = map["admin_password_hash"] || "";
+      if (
+        expectedHash &&
+        data.username.toLowerCase() === expectedUser.toLowerCase() &&
+        data.passwordHash === expectedHash
+      ) {
+        return { ok: true as const, token: issueToken({ role: "admin" }) };
+      }
+    } catch {
+      /* baza niedostępna — zostaje konto lokalne */
+    }
+    return { ok: false as const };
   });
 
 /** Verify seller credentials server-side; password hashes never reach the browser. */
@@ -57,22 +72,43 @@ export const sellerLogin = createServerFn({ method: "POST" })
     return { username, passwordHash };
   })
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { issueToken } = await import("@/lib/session.server");
-    const { data: rows, error } = await supabaseAdmin
-      .from("sellers")
-      .select("id, username, password_hash, active")
-      .eq("active", true);
-    if (error) return { ok: false as const };
-    const found = (rows ?? []).find(
-      (s) => s.username.toLowerCase() === data.username.toLowerCase(),
+    const { LOCAL_SELLERS } = await import("@/data/local-accounts.server");
+
+    // 1) Konta lokalne (plik w kodzie) — działają bez bazy.
+    const local = LOCAL_SELLERS.find(
+      (s) => s.active && s.username.toLowerCase() === data.username.toLowerCase(),
     );
-    if (!found || found.password_hash !== data.passwordHash) return { ok: false as const };
-    return {
-      ok: true as const,
-      sellerId: found.id,
-      token: issueToken({ role: "seller", sellerId: found.id }),
-    };
+    if (local && local.passwordHash === data.passwordHash) {
+      return {
+        ok: true as const,
+        sellerId: local.id,
+        token: issueToken({ role: "seller", sellerId: local.id }),
+      };
+    }
+
+    // 2) Konta z bazy (gdy dostępna).
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: rows, error } = await supabaseAdmin
+        .from("sellers")
+        .select("id, username, password_hash, active")
+        .eq("active", true);
+      if (error) return { ok: false as const };
+      const found = (rows ?? []).find(
+        (s) => s.username.toLowerCase() === data.username.toLowerCase(),
+      );
+      if (found && found.password_hash === data.passwordHash) {
+        return {
+          ok: true as const,
+          sellerId: found.id,
+          token: issueToken({ role: "seller", sellerId: found.id }),
+        };
+      }
+    } catch {
+      /* baza niedostępna — zostają konta lokalne */
+    }
+    return { ok: false as const };
   });
 
 /**
@@ -221,11 +257,17 @@ export const uploadImage = createServerFn({ method: "POST" })
 
 /** Public shipping rates incl. coupon fields, served server-side so they are not exposed via the public data API. */
 export const getShippingRates = createServerFn({ method: "GET" }).handler(async () => {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin
-    .from("shipping_rates")
-    .select("*")
-    .order("sort_order");
-  if (error) throw new Error("Failed to load shipping rates");
-  return JSON.parse(JSON.stringify(data ?? [])) as any[];
+  const { LOCAL_SHIPPING_RATES } = await import("@/data/localShipping");
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("shipping_rates")
+      .select("*")
+      .order("sort_order");
+    if (error || !data?.length) throw new Error("no rows");
+    return JSON.parse(JSON.stringify(data)) as any[];
+  } catch {
+    // Brak bazy (np. hosting bez kluczy) — używamy cennika zapisanego w kodzie.
+    return JSON.parse(JSON.stringify(LOCAL_SHIPPING_RATES)) as any[];
+  }
 });

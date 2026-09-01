@@ -72,22 +72,43 @@ export const sellerLogin = createServerFn({ method: "POST" })
     return { username, passwordHash };
   })
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { issueToken } = await import("@/lib/session.server");
-    const { data: rows, error } = await supabaseAdmin
-      .from("sellers")
-      .select("id, username, password_hash, active")
-      .eq("active", true);
-    if (error) return { ok: false as const };
-    const found = (rows ?? []).find(
-      (s) => s.username.toLowerCase() === data.username.toLowerCase(),
+    const { LOCAL_SELLERS } = await import("@/data/local-accounts.server");
+
+    // 1) Konta lokalne (plik w kodzie) — działają bez bazy.
+    const local = LOCAL_SELLERS.find(
+      (s) => s.active && s.username.toLowerCase() === data.username.toLowerCase(),
     );
-    if (!found || found.password_hash !== data.passwordHash) return { ok: false as const };
-    return {
-      ok: true as const,
-      sellerId: found.id,
-      token: issueToken({ role: "seller", sellerId: found.id }),
-    };
+    if (local && local.passwordHash === data.passwordHash) {
+      return {
+        ok: true as const,
+        sellerId: local.id,
+        token: issueToken({ role: "seller", sellerId: local.id }),
+      };
+    }
+
+    // 2) Konta z bazy (gdy dostępna).
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: rows, error } = await supabaseAdmin
+        .from("sellers")
+        .select("id, username, password_hash, active")
+        .eq("active", true);
+      if (error) return { ok: false as const };
+      const found = (rows ?? []).find(
+        (s) => s.username.toLowerCase() === data.username.toLowerCase(),
+      );
+      if (found && found.password_hash === data.passwordHash) {
+        return {
+          ok: true as const,
+          sellerId: found.id,
+          token: issueToken({ role: "seller", sellerId: found.id }),
+        };
+      }
+    } catch {
+      /* baza niedostępna — zostają konta lokalne */
+    }
+    return { ok: false as const };
   });
 
 /**

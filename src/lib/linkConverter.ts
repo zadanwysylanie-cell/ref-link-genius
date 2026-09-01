@@ -140,6 +140,45 @@ export function extractSourceLink(raw: string): ParsedLink | null {
 /** Kod polecający Kakobuy — używany we wszystkich generowanych linkach. */
 export const KAKOBUY_REF = "six7n";
 
+/** Moje kody polecające — nadpisują cudze refy w linkach agentów. */
+export const MY_REFS = { usfans: "5FTXZW", kakobuy: KAKOBUY_REF, litbuy: "PKMR" } as const;
+
+/**
+ * Podmienia kod polecający w DOWOLNYM linku agenta na mój ref.
+ * Cudze refy (ref=, affcode=, inviteCode=, ikako.vip/r/<kod>) są nadpisywane;
+ * linki bez rozpoznanego agenta zostają bez zmian.
+ */
+export function withMyRef(rawUrl: string): string {
+  const input = (rawUrl ?? "").trim();
+  if (!input) return input;
+  let u: URL;
+  try {
+    u = new URL(input.startsWith("http") ? input : `https://${input}`);
+  } catch {
+    return input;
+  }
+  const host = u.hostname.toLowerCase();
+
+  if (host.includes("usfans.com")) {
+    u.searchParams.set("ref", MY_REFS.usfans);
+    return u.toString();
+  }
+  if (host.includes("litbuy.com")) {
+    u.searchParams.set("inviteCode", MY_REFS.litbuy);
+    return u.toString();
+  }
+  if (host.includes("kakobuy.com")) {
+    u.searchParams.set("affcode", MY_REFS.kakobuy);
+    return u.toString();
+  }
+  if (host === "ikako.vip" || host.endsWith(".ikako.vip")) {
+    // Link rejestracyjny /r/<kod> — podmieniamy kod na mój.
+    if (u.pathname.startsWith("/r/")) return `https://ikako.vip/r/${MY_REFS.kakobuy}`;
+    return input; // krótkie linki produktowe ikako.vip/<hash> — brak źródła do podmiany
+  }
+  return input;
+}
+
 function normalizeAgent(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9]/g, "");
 }

@@ -433,8 +433,17 @@ export const useShippingRates = () =>
     queryKey: ["shipping_rates"],
     queryFn: async () => {
       const { LOCAL_SHIPPING_RATES } = await import("@/data/localShipping");
-      const data = (await getShippingRates().catch(() => LOCAL_SHIPPING_RATES)) as any[];
+      let data: any[] = [];
+      try {
+        const res = (await getShippingRates()) as any;
+        if (Array.isArray(res)) data = res;
+      } catch {
+        data = [];
+      }
+      // Hosting bez działających funkcji serwerowych (np. Vercel) — cennik z kodu.
+      if (!data.length) data = LOCAL_SHIPPING_RATES as any[];
       return (data ?? []).map((r) => ({
+
         ...r,
         base_price: Number(r.base_price),
         price_per_kg: Number(r.price_per_kg),

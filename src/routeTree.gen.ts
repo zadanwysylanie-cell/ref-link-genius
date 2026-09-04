@@ -19,6 +19,7 @@ import { Route as PromocjeRouteImport } from './routes/promocje'
 import { Route as SellerRouteImport } from './routes/seller'
 import { Route as SprzedawcyRouteImport } from './routes/sprzedawcy'
 import { Route as SklepSlugRouteImport } from './routes/sklep.$slug'
+import { Route as ApiPublicProductImageRouteImport } from './routes/api/public/product-image'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -70,6 +71,11 @@ const SklepSlugRoute = SklepSlugRouteImport.update({
   path: '/sklep/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicProductImageRoute = ApiPublicProductImageRouteImport.update({
+  id: '/api/public/product-image',
+  path: '/api/public/product-image',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/seller': typeof SellerRoute
   '/sprzedawcy': typeof SprzedawcyRoute
   '/sklep/$slug': typeof SklepSlugRoute
+  '/api/public/product-image': typeof ApiPublicProductImageRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/seller': typeof SellerRoute
   '/sprzedawcy': typeof SprzedawcyRoute
   '/sklep/$slug': typeof SklepSlugRoute
+  '/api/public/product-image': typeof ApiPublicProductImageRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   '/seller': typeof SellerRoute
   '/sprzedawcy': typeof SprzedawcyRoute
   '/sklep/$slug': typeof SklepSlugRoute
+  '/api/public/product-image': typeof ApiPublicProductImageRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/seller'
     | '/sprzedawcy'
     | '/sklep/$slug'
+    | '/api/public/product-image'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/seller'
     | '/sprzedawcy'
     | '/sklep/$slug'
+    | '/api/public/product-image'
   id:
     | '__root__'
     | '/'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/seller'
     | '/sprzedawcy'
     | '/sklep/$slug'
+    | '/api/public/product-image'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -158,6 +170,7 @@ export interface RootRouteChildren {
   SellerRoute: typeof SellerRoute
   SprzedawcyRoute: typeof SprzedawcyRoute
   SklepSlugRoute: typeof SklepSlugRoute
+  ApiPublicProductImageRoute: typeof ApiPublicProductImageRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -232,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SklepSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/product-image': {
+      id: '/api/public/product-image'
+      path: '/api/public/product-image'
+      fullPath: '/api/public/product-image'
+      preLoaderRoute: typeof ApiPublicProductImageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -246,6 +266,7 @@ const rootRouteChildren: RootRouteChildren = {
   SellerRoute: SellerRoute,
   SprzedawcyRoute: SprzedawcyRoute,
   SklepSlugRoute: SklepSlugRoute,
+  ApiPublicProductImageRoute: ApiPublicProductImageRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

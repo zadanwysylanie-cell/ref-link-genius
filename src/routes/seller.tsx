@@ -5,6 +5,7 @@ import { clearPanelToken, getPanelToken, setPanelToken } from "@/lib/panelToken"
 import { sellerLogin } from "@/lib/secure.functions";
 import { ProductCard } from "@/components/ProductCard";
 import { ImageUploader } from "@/components/ImageUploader";
+import { DEFAULT_SHIRT_SIZES, isShirt } from "@/lib/csvImport";
 import {
   parseList,
   safeStorage,
@@ -256,6 +257,7 @@ function SellerProducts({ seller }: { seller: Seller }) {
 
   const save = async () => {
     if (!form.title) return;
+    const enteredSizes = parseList(form.sizes);
     const payload = {
       title: form.title,
       category: form.category,
@@ -265,7 +267,7 @@ function SellerProducts({ seller }: { seller: Seller }) {
       quality: form.quality,
       batch: form.batch,
       display_order: Number(form.display_order) || 0,
-      sizes: parseList(form.sizes),
+      sizes: enteredSizes.length || !isShirt(form.title, form.category) ? enteredSizes : DEFAULT_SHIRT_SIZES,
       images: galleryUrls,
       agent_links: form.agent_links,
       store_url: form.store_url,

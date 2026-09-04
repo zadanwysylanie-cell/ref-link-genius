@@ -71,6 +71,8 @@ const HEADER_ALIASES: Record<string, string> = {
   rozmiary: "sizes",
   tiktok: "tiktok_url",
   tiktokurl: "tiktok_url",
+  agentlinks: "agent_links",
+  linkiagentow: "agent_links",
 };
 
 const norm = (h: string) =>
@@ -95,6 +97,7 @@ export type ImportedRow = {
   batch: string;
   sizes: string[];
   tiktok_url: string | null;
+  agent_links: Record<string, string>;
 };
 
 const num = (v: string) => {
@@ -104,6 +107,27 @@ const num = (v: string) => {
 
 const list = (v: string) =>
   Array.from(new Set(v.split(/[,;|\n]/).map((s) => s.trim()).filter(Boolean)));
+
+export const DEFAULT_SHIRT_SIZES = ["S", "M", "L", "XL"];
+
+export function isShirt(title: string, category: string): boolean {
+  return /(^|\W)(koszul(?:a|ka|ki|ek)?|t[ -]?shirt|shirt|tee)(\W|$)/i.test(`${title} ${category}`);
+}
+
+function links(value: string): Record<string, string> {
+  if (!value) return {};
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    if (!parsed || Array.isArray(parsed) || typeof parsed !== "object") return {};
+    return Object.fromEntries(
+      Object.entries(parsed as Record<string, unknown>)
+        .filter(([, url]) => typeof url === "string" && url.trim())
+        .map(([agent, url]) => [agent, String(url).trim()]),
+    );
+  } catch {
+    return {};
+  }
+}
 
 /** Zamienia arkusz (CSV/TSV z nagłówkiem) na wiersze produktów. */
 export function rowsToProducts(rows: string[][]): ImportedRow[] {
@@ -120,6 +144,7 @@ export function rowsToProducts(rows: string[][]): ImportedRow[] {
     if (!title) continue;
     const images = list(get("images"));
     const main = get("image_url") || images[0] || "";
+    const sizes = list(get("sizes"));
     out.push({
       title,
       category: get("category"),
@@ -132,8 +157,9 @@ export function rowsToProducts(rows: string[][]): ImportedRow[] {
       store_name: get("store_name"),
       quality: get("quality") || "Best",
       batch: get("batch"),
-      sizes: list(get("sizes")),
+      sizes: sizes.length || !isShirt(title, get("category")) ? sizes : [...DEFAULT_SHIRT_SIZES],
       tiktok_url: get("tiktok_url") || null,
+      agent_links: links(get("agent_links")),
     });
   }
   return out;

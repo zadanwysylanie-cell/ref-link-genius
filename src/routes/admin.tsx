@@ -2204,7 +2204,7 @@ function ImportTab() {
   const downloadCsv = async () => {
     setMsg("Przygotowuję pełny eksport...");
     const exported = await adminExportProducts({ data: { token: getPanelToken() } });
-    const csv = productsToCsv(exported as unknown as Product[]);
+    const csv = productsToCsv(exported as Product[]);
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
     const a = document.createElement("a");
     a.href = url;

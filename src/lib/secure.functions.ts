@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import type { Tables } from "@/integrations/supabase/types";
 
 const ADMIN_TABLES = [
   "agents",
@@ -219,7 +220,7 @@ export const adminExportProducts = createServerFn({ method: "POST" })
       .order("display_order", { ascending: true })
       .order("created_at", { ascending: false });
     if (error) throw new Error("Export failed");
-    return JSON.parse(JSON.stringify(products ?? [])) as Record<string, unknown>[];
+    return (products ?? []) as Tables<"products">[];
   });
 
 /** Publiczny licznik wyświetleń produktu — zwiększany po otwarciu karty. */

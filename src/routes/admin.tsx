@@ -8,7 +8,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { ImageUploader } from "@/components/ImageUploader";
 import { scrapeProduct } from "@/lib/scrape.functions";
 import { DICT, DICT_KEYS, i18nSettingKey } from "@/lib/i18n";
-import { parseDelimited, rowsToProducts } from "@/lib/csvImport";
+import { DEFAULT_SHIRT_SIZES, isShirt, parseDelimited, rowsToProducts } from "@/lib/csvImport";
 import { fetchSheetCsv } from "@/lib/sheet.functions";
 import { translateToEnglish } from "@/lib/translate.functions";
 import {
@@ -34,7 +34,7 @@ import {
 } from "@/lib/store";
 
 const DEFAULT_ADMIN_USER = "replikaenjoyeradmin";
-const DEFAULT_ADMIN_HASH = "b5bba22a04898d7e80f17440b9f3feb2840886a1d95cfddd4f8323ba974ec3cd";
+const DEFAULT_ADMIN_HASH = "a90f1de0e4b918c302344237e041c27e7c06dc37f48115be40f528ad5fa90880";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -1236,6 +1236,7 @@ function ProductsTab() {
     const source =
       [form.store_url, ...Object.values(form.agent_links)].find((u) => extractSourceLink(u)) ?? "";
     const agentLinks = source ? buildAgentLinks(source, form.agent_links) : form.agent_links;
+    const enteredSizes = parseList(form.sizes);
     const payload = {
       title: form.title,
       category: form.category,
@@ -1244,7 +1245,7 @@ function ProductsTab() {
       qc_url: form.qc_url,
       quality: form.quality,
       batch: form.batch,
-      sizes: parseList(form.sizes),
+      sizes: enteredSizes.length || !isShirt(form.title, form.category) ? enteredSizes : DEFAULT_SHIRT_SIZES,
       images: parseList(form.images),
       seller_id: form.seller_id || null,
       tiktok_url: form.tiktok_url || null,
@@ -2173,10 +2174,16 @@ function productsToCsv(products: Product[]): string {
   const cols = [
     "id","title","category","price","price_cny","image_url","images","qc_url","store_url",
     "store_name","quality","batch","sizes","tiktok_url","views","promoted","for_women",
-    "verified","show_on_home","seller_id","display_order",
+    "verified","show_on_home","seller_id","display_order","agent_links",
   ] as const;
   const cell = (v: unknown) => {
-    const s = Array.isArray(v) ? v.join(", ") : v == null ? "" : String(v);
+    const s = Array.isArray(v)
+      ? v.join(", ")
+      : v && typeof v === "object"
+        ? JSON.stringify(v)
+        : v == null
+          ? ""
+          : String(v);
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const lines = [cols.join(",")];
@@ -2230,7 +2237,7 @@ function ImportTab() {
     setMsg(`Importuję ${preview.length} produktów...`);
     try {
       const rows = preview.map((p, i) => {
-        const links: Record<string, string> = {};
+        const links: Record<string, string> = { ...p.agent_links };
         const src = extractSourceLink(p.store_url);
         if (src) {
           for (const a of agents ?? []) {
@@ -2265,7 +2272,7 @@ function ImportTab() {
       <h2 className="mb-1 text-lg font-bold">Szybki import produktów</h2>
       <p className="mb-4 text-xs text-muted-foreground">
         Kolumny (nagłówek pierwszego wiersza): <b>title, category, price, price_cny, image_url,
-        images, qc_url, store_url, store_name, quality, batch, sizes, tiktok_url</b>. Kilka zdjęć /
+        images, qc_url, store_url, store_name, quality, batch, sizes, tiktok_url, agent_links</b>. Kilka zdjęć /
         rozmiarów oddziel przecinkiem. Działa też po polsku (nazwa, kategoria, cena, zdjecia...).
       </p>
 

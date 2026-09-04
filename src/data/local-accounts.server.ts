@@ -19,10 +19,10 @@ export type LocalSellerAccount = {
   active: boolean;
 };
 
-/** Konto administratora. Hasło: !Replika271431Enjoyer$ */
+/** Konto administratora. Hasło: Replika271431Enjoyer$ */
 export const LOCAL_ADMIN: LocalAdmin = {
   username: "replikaenjoyeradmin",
-  passwordHash: "b5bba22a04898d7e80f17440b9f3feb2840886a1d95cfddd4f8323ba974ec3cd",
+  passwordHash: "a90f1de0e4b918c302344237e041c27e7c06dc37f48115be40f528ad5fa90880",
 };
 
 /**

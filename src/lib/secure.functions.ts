@@ -248,11 +248,8 @@ export const uploadImage = createServerFn({ method: "POST" })
       upsert: false,
     });
     if (error) throw new Error("Upload failed");
-    const { data: signed, error: signErr } = await supabaseAdmin.storage
-      .from("product-images")
-      .createSignedUrl(path, 60 * 60 * 24 * 3650);
-    if (signErr || !signed?.signedUrl) throw new Error("Upload failed");
-    return { url: signed.signedUrl };
+    // Store a stable application URL, never an expiring signed storage URL.
+    return { url: `/api/public/product-image?path=${encodeURIComponent(path)}` };
   });
 
 /** Public shipping rates incl. coupon fields, served server-side so they are not exposed via the public data API. */

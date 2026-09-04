@@ -205,6 +205,23 @@ export const adminSellerUsernames = createServerFn({ method: "POST" })
     };
   });
 
+/** Admin-only product export so CSV never depends on a delayed/failed public browser query. */
+export const adminExportProducts = createServerFn({ method: "POST" })
+  .inputValidator((data: { token: string }) => ({ token: cleanToken(data?.token) }))
+  .handler(async ({ data }) => {
+    const { verifyToken } = await import("@/lib/session.server");
+    const session = verifyToken(data.token);
+    if (!session || session.role !== "admin") throw new Error("Unauthorized");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: products, error } = await supabaseAdmin
+      .from("products")
+      .select("*")
+      .order("display_order", { ascending: true })
+      .order("created_at", { ascending: false });
+    if (error) throw new Error("Export failed");
+    return JSON.parse(JSON.stringify(products ?? [])) as Record<string, unknown>[];
+  });
+
 /** Publiczny licznik wyświetleń produktu — zwiększany po otwarciu karty. */
 export const registerProductView = createServerFn({ method: "POST" })
   .inputValidator((data: { productId: string }) => {

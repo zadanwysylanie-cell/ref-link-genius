@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, useMemo } from "react";
 import { panelDb } from "@/lib/panelDb";
-import { adminLogin, adminSellerUsernames } from "@/lib/secure.functions";
+import { adminExportProducts, adminLogin, adminSellerUsernames } from "@/lib/secure.functions";
 import { clearPanelToken, getPanelToken, setPanelToken } from "@/lib/panelToken";
 import { convertLink, extractSourceLink } from "@/lib/linkConverter";
 import { ProductCard } from "@/components/ProductCard";
@@ -2201,14 +2201,17 @@ function ImportTab() {
   const [showOnHome, setShowOnHome] = useState(false);
   const refresh = useRefresh();
 
-  const downloadCsv = () => {
-    const csv = productsToCsv(allProducts ?? []);
+  const downloadCsv = async () => {
+    setMsg("Przygotowuję pełny eksport...");
+    const exported = await adminExportProducts({ data: { token: getPanelToken() } });
+    const csv = productsToCsv(exported as unknown as Product[]);
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
     const a = document.createElement("a");
     a.href = url;
     a.download = `produkty-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+    setMsg(`Pobrano ${exported.length} produktów wraz z linkami i zdjęciami.`);
   };
   const [text, setText] = useState("");
   const [sheetUrl, setSheetUrl] = useState("");
@@ -2301,7 +2304,7 @@ function ImportTab() {
           />
           Pokaż też na stronie głównej
         </label>
-        <button className={btnGhost} onClick={downloadCsv}>
+        <button className={btnGhost} onClick={() => void downloadCsv()}>
           ⬇ Pobierz CSV produktów ({(allProducts ?? []).length})
         </button>
       </div>

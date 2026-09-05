@@ -88,7 +88,7 @@ function AdminPage() {
       data: { username: user.trim(), passwordHash: await sha256Hex(pass) },
     }).catch(() => ({ ok: false as const }));
     if (!res.ok || !("token" in res)) {
-      setErr("Nieprawidłowe dane logowania.");
+      setPass("");
       return;
     }
     setPanelToken(res.token);

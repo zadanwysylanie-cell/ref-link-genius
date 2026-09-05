@@ -60,7 +60,6 @@ function AdminPage() {
   const [authed, setAuthed] = useState(false);
   const [user, setUser] = useState("");
   const [pass, setPass] = useState("");
-  const [err, setErr] = useState("");
   const [tab, setTab] = useState<
     | "branding"
     | "promos"
@@ -83,12 +82,11 @@ function AdminPage() {
   }, []);
 
   const login = async () => {
-    setErr("");
     const res = await adminLogin({
       data: { username: user.trim(), passwordHash: await sha256Hex(pass) },
     }).catch(() => ({ ok: false as const }));
     if (!res.ok || !("token" in res)) {
-      setErr("Nieprawidłowe dane logowania.");
+      setPass("");
       return;
     }
     setPanelToken(res.token);
@@ -141,11 +139,6 @@ function AdminPage() {
               onChange={(e) => setPass(e.target.value)}
             />
           </label>
-          {err ? (
-            <p className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-              {err}
-            </p>
-          ) : null}
           <button className={`${btn} w-full py-3`}>Zaloguj</button>
           <Link
             to="/"
@@ -1038,6 +1031,17 @@ function CategoriesTab() {
 /** Ile produktów pokazujemy naraz na liście w panelu. */
 const ADMIN_PAGE_SIZE = 50;
 
+/** Krótka lista problemów produktu — używana do sortowania i oznaczeń. */
+function productIssues(p: Product): string[] {
+  const issues: string[] = [];
+  const links = Object.values(p.agent_links ?? {}).filter((v) => String(v ?? "").trim());
+  const hasStore = Boolean(String(p.store_url ?? "").trim());
+  if (!links.length && !hasStore) issues.push("brak linku");
+  else if (links.some((l) => !/^https?:\/\//i.test(String(l).trim()))) issues.push("błędny link");
+  if (!String(p.image_url ?? "").trim()) issues.push("brak zdjęcia");
+  return issues;
+}
+
 /** Okrągły przełącznik on/off dla flag produktu. */
 function ToggleChip({
   icon,
@@ -1146,17 +1150,17 @@ function ProductsTab() {
   }, [products, orderIds]);
 
   const q = search.trim().toLowerCase();
-  const matched = useMemo(
-    () =>
-      ordered.filter((p) =>
-        q
-          ? [p.title, p.category, p.batch, p.store_name].some((v) =>
-              (v ?? "").toLowerCase().includes(q),
-            )
-          : true,
-      ),
-    [ordered, q],
-  );
+  const matched = useMemo(() => {
+    const list = ordered.filter((p) =>
+      q
+        ? [p.title, p.category, p.batch, p.store_name].some((v) =>
+            (v ?? "").toLowerCase().includes(q),
+          )
+        : true,
+    );
+    // Produkty z problemem (brak linku, brak zdjęcia) trafiają na samą górę.
+    return [...list].sort((a, b) => Number(productIssues(b).length > 0) - Number(productIssues(a).length > 0));
+  }, [ordered, q]);
 
   useEffect(() => {
     setLimit(ADMIN_PAGE_SIZE);
@@ -1164,6 +1168,7 @@ function ProductsTab() {
 
   const visible = matched.slice(0, limit);
   const remaining = matched.length - visible.length;
+  const brokenCount = matched.filter((p) => productIssues(p).length > 0).length;
 
 
 
@@ -1561,6 +1566,7 @@ function ProductsTab() {
         />
         <p className="mb-3 text-xs text-muted-foreground">
           Pokazano {visible.length} z {matched.length}
+          {brokenCount ? ` — do poprawy: ${brokenCount} (na górze listy)` : ""}
         </p>
         <ul className="space-y-2">
           {visible.map((p) => (
@@ -1590,10 +1596,17 @@ function ProductsTab() {
                   ? "scale-[0.99] border-primary opacity-50"
                   : overId === p.id && dragId
                     ? "border-primary translate-y-0.5"
-                    : "border-border"
+                    : productIssues(p).length
+                      ? "border-destructive/60"
+                      : "border-border"
               }`}
             >
               <span className="select-none text-base text-muted-foreground">⠿</span>
+              {productIssues(p).length ? (
+                <span className="rounded-md border border-destructive/50 bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase text-destructive">
+                  {productIssues(p).join(" · ")}
+                </span>
+              ) : null}
 
               {p.image_url ? (
                 <img src={p.image_url} alt="" className="h-10 w-10 rounded-lg object-cover" />

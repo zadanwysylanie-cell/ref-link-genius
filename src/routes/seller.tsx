@@ -44,7 +44,6 @@ function SellerPage() {
   const [sellerId, setSellerId] = useState<string | null>(null);
   const [user, setUser] = useState("");
   const [pass, setPass] = useState("");
-  const [err, setErr] = useState("");
 
   useEffect(() => {
     const saved = safeStorage.get("pkmr_seller");
@@ -54,12 +53,11 @@ function SellerPage() {
   const seller = (sellers ?? []).find((s) => s.id === sellerId) ?? null;
 
   const login = async () => {
-    setErr("");
     const res = await sellerLogin({
       data: { username: user.trim(), passwordHash: await sha256Hex(pass) },
     }).catch(() => ({ ok: false as const }));
     if (!res.ok || !("sellerId" in res)) {
-      setErr("Nieprawidłowe dane logowania.");
+      setPass("");
       return;
     }
     if ("token" in res) setPanelToken(res.token);
@@ -94,7 +92,6 @@ function SellerPage() {
             value={pass}
             onChange={(e) => setPass(e.target.value)}
           />
-          {err ? <p className="text-xs text-destructive">{err}</p> : null}
           <button className={`${btn} w-full`}>Zaloguj</button>
         </form>
       </div>

@@ -141,11 +141,6 @@ function AdminPage() {
               onChange={(e) => setPass(e.target.value)}
             />
           </label>
-          {err ? (
-            <p className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-              {err}
-            </p>
-          ) : null}
           <button className={`${btn} w-full py-3`}>Zaloguj</button>
           <Link
             to="/"

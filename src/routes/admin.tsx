@@ -1566,6 +1566,7 @@ function ProductsTab() {
         />
         <p className="mb-3 text-xs text-muted-foreground">
           Pokazano {visible.length} z {matched.length}
+          {brokenCount ? ` — do poprawy: ${brokenCount} (na górze listy)` : ""}
         </p>
         <ul className="space-y-2">
           {visible.map((p) => (
@@ -1595,10 +1596,17 @@ function ProductsTab() {
                   ? "scale-[0.99] border-primary opacity-50"
                   : overId === p.id && dragId
                     ? "border-primary translate-y-0.5"
-                    : "border-border"
+                    : productIssues(p).length
+                      ? "border-destructive/60"
+                      : "border-border"
               }`}
             >
               <span className="select-none text-base text-muted-foreground">⠿</span>
+              {productIssues(p).length ? (
+                <span className="rounded-md border border-destructive/50 bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase text-destructive">
+                  {productIssues(p).join(" · ")}
+                </span>
+              ) : null}
 
               {p.image_url ? (
                 <img src={p.image_url} alt="" className="h-10 w-10 rounded-lg object-cover" />

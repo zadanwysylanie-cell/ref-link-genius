@@ -1031,6 +1031,17 @@ function CategoriesTab() {
 /** Ile produktów pokazujemy naraz na liście w panelu. */
 const ADMIN_PAGE_SIZE = 50;
 
+/** Krótka lista problemów produktu — używana do sortowania i oznaczeń. */
+function productIssues(p: Product): string[] {
+  const issues: string[] = [];
+  const links = Object.values(p.agent_links ?? {}).filter((v) => String(v ?? "").trim());
+  const hasStore = Boolean(String(p.store_url ?? "").trim());
+  if (!links.length && !hasStore) issues.push("brak linku");
+  else if (links.some((l) => !/^https?:\/\//i.test(String(l).trim()))) issues.push("błędny link");
+  if (!String(p.image_url ?? "").trim()) issues.push("brak zdjęcia");
+  return issues;
+}
+
 /** Okrągły przełącznik on/off dla flag produktu. */
 function ToggleChip({
   icon,

@@ -1139,17 +1139,17 @@ function ProductsTab() {
   }, [products, orderIds]);
 
   const q = search.trim().toLowerCase();
-  const matched = useMemo(
-    () =>
-      ordered.filter((p) =>
-        q
-          ? [p.title, p.category, p.batch, p.store_name].some((v) =>
-              (v ?? "").toLowerCase().includes(q),
-            )
-          : true,
-      ),
-    [ordered, q],
-  );
+  const matched = useMemo(() => {
+    const list = ordered.filter((p) =>
+      q
+        ? [p.title, p.category, p.batch, p.store_name].some((v) =>
+            (v ?? "").toLowerCase().includes(q),
+          )
+        : true,
+    );
+    // Produkty z problemem (brak linku, brak zdjęcia) trafiają na samą górę.
+    return [...list].sort((a, b) => Number(productIssues(b).length > 0) - Number(productIssues(a).length > 0));
+  }, [ordered, q]);
 
   useEffect(() => {
     setLimit(ADMIN_PAGE_SIZE);
@@ -1157,6 +1157,7 @@ function ProductsTab() {
 
   const visible = matched.slice(0, limit);
   const remaining = matched.length - visible.length;
+  const brokenCount = matched.filter((p) => productIssues(p).length > 0).length;
 
 
 

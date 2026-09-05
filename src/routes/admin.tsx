@@ -60,7 +60,6 @@ function AdminPage() {
   const [authed, setAuthed] = useState(false);
   const [user, setUser] = useState("");
   const [pass, setPass] = useState("");
-  const [err, setErr] = useState("");
   const [tab, setTab] = useState<
     | "branding"
     | "promos"
@@ -83,7 +82,6 @@ function AdminPage() {
   }, []);
 
   const login = async () => {
-    setErr("");
     const res = await adminLogin({
       data: { username: user.trim(), passwordHash: await sha256Hex(pass) },
     }).catch(() => ({ ok: false as const }));
